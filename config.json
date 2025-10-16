@@ -1,0 +1,13 @@
+{
+  "api": {
+    "baseUrl": "http://localhost:5000",
+    "timeout": 10000,
+    "retryAttempts": 3
+  },
+  "endpoints": {
+    "auth": "/api/auth",
+    "admin": "/api/admin",
+    "contents": "/api/contents",
+    "users": "/api/users"
+  }
+}
