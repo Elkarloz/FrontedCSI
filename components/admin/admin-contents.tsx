@@ -23,6 +23,7 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { tokenUtils } from '@/lib/api/auth'
+import { API_CONFIG } from '@/lib/api/config'
 
 interface Content {
   id: number
@@ -64,7 +65,7 @@ export function AdminContents() {
   const fetchContents = async () => {
     try {
       const token = tokenUtils.getToken()
-      const response = await fetch('http://localhost:5000/api/contents', {
+      const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.CONTENTS}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -119,8 +120,8 @@ export function AdminContents() {
     try {
       const token = tokenUtils.getToken()
       const url = editingContent 
-        ? `http://localhost:5000/api/contents/${editingContent.id}`
-        : 'http://localhost:5000/api/contents'
+        ? `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.CONTENTS}/${editingContent.id}`
+        : `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.CONTENTS}`
       
       const method = editingContent ? 'PUT' : 'POST'
 
@@ -159,7 +160,7 @@ export function AdminContents() {
 
     try {
       const token = tokenUtils.getToken()
-      const response = await fetch(`http://localhost:5000/api/contents/${id}`, {
+      const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.CONTENTS}/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`

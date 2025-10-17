@@ -185,7 +185,7 @@ export default function AdminPage() {
         // Usar tokenUtils para obtener el token correctamente
         const token = tokenUtils.getToken();
         const response = await fetch(
-          `http://localhost:5000/api/contents/${id}`,
+          `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.CONTENTS}/${id}`,
           {
             method: "DELETE",
             headers: {

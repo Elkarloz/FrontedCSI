@@ -10,6 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Loader2, Save, User } from 'lucide-react'
 import { toast } from 'sonner'
 import { tokenUtils } from '@/lib/api/auth'
+import { API_CONFIG } from '@/lib/api/config'
 
 export function AdminConfig() {
   const { user, refreshUser } = useAuth()
@@ -50,7 +51,7 @@ export function AdminConfig() {
 
     try {
       const token = tokenUtils.getToken()
-      const response = await fetch('http://localhost:5000/api/admin/profile', {
+      const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.ADMIN}/profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

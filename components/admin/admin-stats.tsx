@@ -16,6 +16,7 @@ import {
 import { getDashboard } from '@/lib/admin-api'
 import { toast } from 'sonner'
 import { tokenUtils } from '@/lib/api/auth'
+import { API_CONFIG } from '@/lib/api/config'
 
 interface DashboardStats {
   totalUsers: number
@@ -47,7 +48,7 @@ export function AdminStats() {
   const fetchDashboardData = async () => {
     try {
       const token = tokenUtils.getToken()
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/dashboard`, {
+      const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.ADMIN}/dashboard`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
