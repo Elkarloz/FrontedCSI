@@ -5,9 +5,9 @@
     "retryAttempts": 3
   },
   "endpoints": {
-    "auth": "/api/auth",
-    "admin": "/api/admin",
-    "contents": "/api/contents",
-    "users": "/api/users"
+    "auth": "/auth",
+    "admin": "/admin",
+    "contents": "/contents",
+    "users": "/users"
   }
 }
