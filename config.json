@@ -1,6 +1,6 @@
 {
   "api": {
-    "baseUrl": "https://alejamamona.codevalcanos.com/api",
+    "baseUrl": "https://alejamamona.codevalcanos.com",
     "timeout": 10000,
     "retryAttempts": 3
   },
