@@ -1,6 +1,6 @@
 {
   "api": {
-    "baseUrl": "http://localhost:5000",
+    "baseUrl": "https://alejamamona.codevalcanos.com/api",
     "timeout": 10000,
     "retryAttempts": 3
   },
