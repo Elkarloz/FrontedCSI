@@ -1,10 +1,4 @@
-/**
- * ContentList - Vista para mostrar la lista de contenidos
- * Responsabilidades:
- * - Mostrar lista de contenidos con información visual
- * - Manejar acciones de contenido (crear, editar, eliminar)
- * - Coordinar con el controlador para la lógica de negocio
- */
+
 
 import React, { useState, useEffect } from 'react';
 import { contentController } from '../controllers/contentController.js';
@@ -462,21 +456,7 @@ const ContentForm = ({ content, onSubmit, onCancel, isOpen }) => {
           </div>
         )}
 
-        {/* Información para PDFs */}
-        {formData.resourceType === 'pdf' && (
-          <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
-            <div className="flex items-center">
-              <span className="text-blue-400 text-xl mr-3">ℹ️</span>
-              <div>
-                <h4 className="text-blue-400 font-mono font-bold">Información sobre PDFs</h4>
-                <p className="text-gray-300 font-mono text-sm mt-1">
-                  Para contenidos PDF, puedes subir el archivo después de crear el contenido. 
-                  No es necesario proporcionar una URL inicial.
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
+      
 
         {/* Subida de PDF para contenidos */}
         {formData.resourceType === 'pdf' && (
