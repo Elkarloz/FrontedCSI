@@ -1,18 +1,10 @@
-/**
- * ApiClient - Cliente HTTP centralizado para todas las peticiones a la API
- * Responsabilidades:
- * - Configurar headers por defecto
- * - Manejar autenticación
- * - Interceptar peticiones y respuestas
- * - Manejar errores globalmente
- */
 
 import axios from 'axios';
 
 class ApiClient {
   constructor() {
     this.client = axios.create({
-      baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000',
+      baseURL:  'https://apicsi.codevalcanos.com',
       timeout: 10000,
       headers: {
         'Content-Type': 'application/json',
