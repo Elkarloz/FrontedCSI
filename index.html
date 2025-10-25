@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/placeholder-logo.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Misión Espacial - Sistema educativo de cálculo integral con arquitectura MVC" />
+    <meta name="keywords" content="educación, matemáticas, cálculo, integral, espacio, trivia" />
+    <meta name="author" content="Equipo de Desarrollo" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://mision-espacial.com/" />
+    <meta property="og:title" content="Misión Espacial - Trivia Cósmica" />
+    <meta property="og:description" content="Aprende y domina el cálculo integral paso a paso" />
+    <meta property="og:image" content="/placeholder-logo.svg" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://mision-espacial.com/" />
+    <meta property="twitter:title" content="Misión Espacial - Trivia Cósmica" />
+    <meta property="twitter:description" content="Aprende y domina el cálculo integral paso a paso" />
+    <meta property="twitter:image" content="/placeholder-logo.svg" />
+    
+    <title>Misión Espacial - Trivia Cósmica</title>
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="/src/styles/globals.css" as="style" />
+    <link rel="preload" href="/src/main.jsx" as="script" crossorigin />
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="/src/styles/globals.css" />
+    
+    <!-- Theme color -->
+    <meta name="theme-color" content="#3b82f6" />
+    
+    <!-- Apple touch icon -->
+    <link rel="apple-touch-icon" href="/placeholder-logo.png" />
+    
+  </head>
+  <body>
+    <div id="root">
+      <!-- Loading fallback -->
+      <div style="
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        font-family: 'Courier New', monospace;
+        background: #000000;
+        color: white;
+        position: relative;
+        overflow: hidden;
+      ">
+        <!-- Starfield background -->
+        <div style="
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: radial-gradient(2px 2px at 20px 30px, #eee, transparent),
+                      radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
+                      radial-gradient(1px 1px at 90px 40px, #fff, transparent),
+                      radial-gradient(1px 1px at 130px 80px, rgba(255,255,255,0.6), transparent),
+                      radial-gradient(2px 2px at 160px 30px, #fff, transparent);
+          background-repeat: repeat;
+          background-size: 200px 100px;
+          animation: twinkle 3s ease-in-out infinite alternate;
+        "></div>
+        
+        <div style="text-align: center; position: relative; z-index: 10;">
+          <div style="
+            width: 40px;
+            height: 40px;
+            border: 4px solid #666;
+            border-top: 4px solid #00f0ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+          "></div>
+          <h2 style="
+            margin: 0 0 10px; 
+            font-size: 24px; 
+            font-weight: 600;
+            color: #00f0ff;
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+            letter-spacing: 2px;
+          ">
+            MISIÓN ESPACIAL
+          </h2>
+          <p style="
+            margin: 0; 
+            opacity: 0.8; 
+            font-size: 16px;
+            color: #00ff88;
+            text-shadow: 0 0 5px rgba(0, 255, 136, 0.3);
+          ">
+            Preparando misión espacial...
+          </p>
+        </div>
+      </div>
+      
+      <style>
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes twinkle {
+          0% { opacity: 0.3; }
+          100% { opacity: 1; }
+        }
+      </style>
+    </div>
+    
+    <!-- Main script -->
+    <script type="module" src="/src/main.jsx"></script>
+    
+    <!-- Error handling -->
+    <script>
+      window.addEventListener('error', function(e) {
+        console.error('Error global:', e.error);
+      });
+      
+      window.addEventListener('unhandledrejection', function(e) {
+        console.error('Promesa rechazada:', e.reason);
+      });
+    </script>
+  </body>
+</html>

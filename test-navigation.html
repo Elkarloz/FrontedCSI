@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test de Navegación</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #1a1a1a;
+            color: #fff;
+        }
+        .test-section {
+            background: #2a2a2a;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border: 1px solid #444;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #45a049; }
+        .info { color: #2196F3; }
+        .success { color: #4CAF50; }
+        .error { color: #f44336; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test de Navegación a Quiz</h1>
+    
+    <div class="test-section">
+        <h2>🔗 URLs de Prueba</h2>
+        <p class="info">Prueba estas URLs directamente en el navegador:</p>
+        <ul>
+            <li><a href="http://localhost:5173/quiz/19/2" target="_blank">http://localhost:5173/quiz/19/2</a></li>
+            <li><a href="http://localhost:5173/quiz/19/3" target="_blank">http://localhost:5173/quiz/19/3</a></li>
+            <li><a href="http://localhost:5173/quiz/19/5" target="_blank">http://localhost:5173/quiz/19/5</a></li>
+        </ul>
+    </div>
+    
+    <div class="test-section">
+        <h2>📋 Pasos para Probar</h2>
+        <ol>
+            <li>Asegúrate de que el servidor frontend esté corriendo en puerto 5173</li>
+            <li>Abre la consola del navegador (F12)</li>
+            <li>Ve a la lista de ejercicios del nivel 19</li>
+            <li>Haz click en cualquier ejercicio</li>
+            <li>Verifica en la consola si aparecen los logs de navegación</li>
+            <li>Verifica si la URL cambia a /quiz/19/[exerciseId]</li>
+        </ol>
+    </div>
+    
+    <div class="test-section">
+        <h2>🔍 Debug de Navegación</h2>
+        <button onclick="testNavigation()">Probar Navegación</button>
+        <div id="navigation-result"></div>
+    </div>
+
+    <script>
+        function testNavigation() {
+            const resultDiv = document.getElementById('navigation-result');
+            resultDiv.innerHTML = '<p class="info">🔄 Probando navegación...</p>';
+            
+            // Simular navegación
+            const levelId = 19;
+            const exerciseId = 2;
+            const url = `/quiz/${levelId}/${exerciseId}`;
+            
+            resultDiv.innerHTML = `
+                <p class="success">✅ Navegación simulada</p>
+                <p class="info">URL: ${url}</p>
+                <p class="info">LevelId: ${levelId}</p>
+                <p class="info">ExerciseId: ${exerciseId}</p>
+                <p class="info">Si no funciona, revisa:</p>
+                <ul>
+                    <li>Que el servidor frontend esté corriendo</li>
+                    <li>Que no haya errores en la consola</li>
+                    <li>Que la ruta esté configurada correctamente</li>
+                </ul>
+            `;
+        }
+    </script>
+</body>
+</html>

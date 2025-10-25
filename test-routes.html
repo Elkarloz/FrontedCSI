@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test de Rutas Admin</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000;
+            color: #00ff00;
+            padding: 20px;
+        }
+        .route-test {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #00ff00;
+            border-radius: 5px;
+        }
+        .route-link {
+            color: #00ffff;
+            text-decoration: none;
+            margin-right: 10px;
+        }
+        .route-link:hover {
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test de Rutas del Panel de Administración</h1>
+    
+    <div class="route-test">
+        <h2>Rutas Principales del Admin:</h2>
+        <a href="/admin" class="route-link">/admin - Dashboard Principal</a><br>
+        <a href="/admin/users" class="route-link">/admin/users - Gestión de Usuarios</a><br>
+        <a href="/admin/contents" class="route-link">/admin/contents - Gestión de Contenidos</a><br>
+        <a href="/admin/game" class="route-link">/admin/game - Gestión del Juego</a><br>
+    </div>
+
+    <div class="route-test">
+        <h2>Instrucciones de Prueba:</h2>
+        <ol>
+            <li>Haz clic en cada enlace para navegar a la ruta</li>
+            <li>Verifica que cada página se carga correctamente</li>
+            <li>Presiona F5 en cada página para verificar que la ruta se mantiene</li>
+            <li>Usa el botón "Volver" para regresar al dashboard</li>
+            <li>Verifica que el breadcrumb funciona correctamente</li>
+        </ol>
+    </div>
+
+    <div class="route-test">
+        <h2>✅ Funcionalidades Implementadas:</h2>
+        <ul>
+            <li>✅ Rutas anidadas para cada sección del admin</li>
+            <li>✅ Layout compartido con navegación</li>
+            <li>✅ Breadcrumbs automáticos</li>
+            <li>✅ Persistencia de rutas al hacer F5</li>
+            <li>✅ Navegación entre secciones</li>
+            <li>✅ Componentes separados para cada funcionalidad</li>
+        </ul>
+    </div>
+
+    <script>
+        console.log('🧪 Test de rutas del admin iniciado');
+        console.log('📍 Rutas disponibles:');
+        console.log('  - /admin (Dashboard principal)');
+        console.log('  - /admin/users (Gestión de usuarios)');
+        console.log('  - /admin/contents (Gestión de contenidos)');
+        console.log('  - /admin/game (Gestión del juego)');
+    </script>
+</body>
+</html>
