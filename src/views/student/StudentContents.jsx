@@ -6,6 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { contentService } from '../../services/contentService.js';
 import { useToast } from '../../components/Toast.jsx';
+import ContentPDF from '../../components/ContentPDF.jsx';
 
 const StudentContents = () => {
   const [contents, setContents] = useState([]);
@@ -152,6 +153,12 @@ const StudentContents = () => {
                 <p className="text-gray-300 font-mono text-sm mb-4 line-clamp-3">
                   {content.description}
                 </p>
+                
+                {/* Mostrar PDF si existe */}
+                <ContentPDF 
+                  content={content}
+                  canEdit={false}
+                />
                 
                 <div className="flex items-center justify-between">
                   <span className="text-gray-400 font-mono text-xs">

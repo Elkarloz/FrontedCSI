@@ -12,6 +12,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { exerciseController } from "../../controllers/exerciseController.js";
 import { useToast } from "../../components/Toast.jsx";
 import LoadingSpinner from "../../components/LoadingSpinner.jsx";
+import ExerciseImage from "../../components/ExerciseImage.jsx";
 
 const QuizView = () => {
   const { levelId, exerciseId } = useParams();
@@ -338,6 +339,12 @@ const QuizView = () => {
               <h1 className="text-3xl font-bold text-white font-mono mb-4 text-center">
                 {exercise.question}
               </h1>
+              
+              {/* Mostrar imagen del ejercicio si existe */}
+              <ExerciseImage 
+                exercise={exercise}
+                canEdit={false}
+              />
               <div className="flex items-center justify-center space-x-4 text-sm font-mono">
                 <span className="text-cyan-400">📊 {exercise.type}</span>
                 <span className="text-green-400">⭐ {exercise.difficulty}</span>

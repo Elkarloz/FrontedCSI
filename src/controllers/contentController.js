@@ -34,8 +34,12 @@ class ContentController {
       }
       
       // Verificar que response.data tenga la estructura correcta
+      console.log('📄 ContentController.getAllContents() - Response data:', response.data);
       const contentsData = response.data?.contents || response.data || [];
       const pagination = response.data?.pagination || null;
+      
+      console.log('📄 ContentController.getAllContents() - Contents data:', contentsData);
+      console.log('📄 ContentController.getAllContents() - Pagination:', pagination);
       
       // Transformar datos para la vista
       const transformedContents = Array.isArray(contentsData) ? contentsData.map(content => ({
@@ -418,15 +422,26 @@ class ContentController {
         errors.push('El tipo de recurso debe ser "pdf" o "video"');
       }
       
-      if (!contentData.resourceUrl || contentData.resourceUrl.trim().length < 5) {
-        errors.push('La URL del recurso es requerida y debe ser válida');
+      // Para videos, la URL es obligatoria
+      if (contentData.resourceType === 'video') {
+        if (!contentData.resourceUrl || contentData.resourceUrl.trim().length < 5) {
+          errors.push('La URL del recurso es requerida para videos');
+        } else {
+          try {
+            new URL(contentData.resourceUrl);
+          } catch (error) {
+            errors.push('La URL del recurso no es válida');
+          }
+        }
       }
       
-      // Validar URL
-      try {
-        new URL(contentData.resourceUrl);
-      } catch (error) {
-        errors.push('La URL del recurso no es válida');
+      // Para PDFs, la URL es opcional inicialmente
+      if (contentData.resourceType === 'pdf' && contentData.resourceUrl) {
+        try {
+          new URL(contentData.resourceUrl);
+        } catch (error) {
+          errors.push('La URL del recurso no es válida');
+        }
       }
     } else {
       if (contentData.title && contentData.title.trim().length < 2) {
@@ -466,9 +481,14 @@ class ContentController {
     const preparedData = {
       title: contentData.title?.trim(),
       description: contentData.description?.trim() || '',
-      resourceType: contentData.resourceType,
-      resourceUrl: contentData.resourceUrl?.trim()
+      resourceType: contentData.resourceType
     };
+    
+    // Solo incluir resourceUrl si está definida y no es vacía
+    if (contentData.resourceUrl && contentData.resourceUrl.trim()) {
+      preparedData.resourceUrl = contentData.resourceUrl.trim();
+    }
+    
     console.log('📄 ContentController.prepareContentData() - Datos preparados:', preparedData);
     return preparedData;
   }

@@ -43,13 +43,13 @@ const AdminDashboard = () => {
   return (
     <div className="px-6 py-8">
       <div className="max-w-7xl mx-auto">
-        {/* Main Categories Selection */}
+        {/* Welcome Section */}
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-white font-mono mb-4">
-            ¿Qué deseas administrar?
+            ¡Bienvenido al Panel de Administración!
           </h2>
           <p className="text-gray-400 font-mono text-lg">
-            Selecciona una categoría para comenzar
+            Gestiona el sistema educativo espacial desde aquí
           </p>
         </div>
 
@@ -75,6 +75,8 @@ const AdminDashboard = () => {
             </button>
           ))}
         </div>
+
+     
       </div>
     </div>
   );

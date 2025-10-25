@@ -11,6 +11,8 @@ import { exerciseController } from '../controllers/exerciseController.js';
 import { useToast } from './Toast.jsx';
 import ConfirmDialog from './ConfirmDialog.jsx';
 import Modal from './Modal.jsx';
+import ExerciseImage from './ExerciseImage.jsx';
+import { useFileUpload } from '../hooks/useFileUpload';
 
 const ExerciseList = ({ levelId }) => {
   const [exercises, setExercises] = useState([]);
@@ -122,9 +124,35 @@ const ExerciseList = ({ levelId }) => {
    * @param {Object} exerciseData - Datos del ejercicio
    */
   const handleCreateExercise = async (exerciseData) => {
-    const result = await exerciseController.createExercise(exerciseData);
+    // Separar el archivo de imagen del resto de los datos
+    const { filePath, ...exerciseWithoutFile } = exerciseData;
+    const imageFile = filePath instanceof File ? filePath : null;
+    
+    const result = await exerciseController.createExercise(exerciseWithoutFile);
     
     if (result.success) {
+      // Si hay una imagen para subir, subirla ahora
+      if (imageFile && result.data && result.data.id) {
+        try {
+          console.log('🖼️ Subiendo imagen para el ejercicio:', result.data.id);
+          
+          // Usar el hook importado
+          const fileUploadHook = useFileUpload();
+          await fileUploadHook.uploadExerciseImage(
+            result.data.id,
+            imageFile,
+            (response) => {
+              console.log('✅ Imagen subida exitosamente:', response);
+            },
+            (error) => {
+              console.error('❌ Error al subir imagen:', error);
+            }
+          );
+        } catch (error) {
+          console.error('❌ Error al subir imagen:', error);
+        }
+      }
+      
       setShowCreateForm(false);
       showSuccess('Ejercicio creado correctamente', 'Éxito');
       // Recargar la lista para asegurar sincronización
@@ -719,6 +747,22 @@ const ExerciseForm = ({ exercise, onSubmit, onCancel, isOpen }) => {
             placeholder="Escribe la pregunta del ejercicio..."
               />
             </div>
+
+            {/* Soporte para imágenes en ejercicios */}
+            {exercise && (
+              <ExerciseImage 
+                exercise={exercise}
+                onImageUpdate={(imageData) => {
+                  // Actualizar el ejercicio con la nueva imagen
+                  setFormData(prev => ({ ...prev, imageUrl: imageData.imageUrl }));
+                }}
+                onImageDelete={() => {
+                  // Remover la imagen del ejercicio
+                  setFormData(prev => ({ ...prev, imageUrl: null }));
+                }}
+                canEdit={true}
+              />
+            )}
 
             <div>
               <label className="block text-sm font-medium text-pink-400 mb-2 font-mono">

@@ -11,6 +11,8 @@ import { contentController } from '../controllers/contentController.js';
 import { useToast } from './Toast.jsx';
 import ConfirmDialog from './ConfirmDialog.jsx';
 import Modal from './Modal.jsx';
+import { useFileUpload } from '../hooks/useFileUpload';
+import ContentPDF from './ContentPDF.jsx';
 
 const ContentList = () => {
   const [contents, setContents] = useState([]);
@@ -26,6 +28,7 @@ const ContentList = () => {
     onConfirm: null
   });
   const { showSuccess, showError, showWarning } = useToast();
+  const { uploadContentPDF } = useFileUpload();
 
   // Cargar contenidos al montar el componente
   useEffect(() => {
@@ -44,6 +47,8 @@ const ContentList = () => {
       const result = await contentController.getAllContents();
       
       if (result.success) {
+        console.log('📄 ContentList.loadContents() - Result data:', result.data);
+        console.log('📄 ContentList.loadContents() - Contents:', result.data.contents);
         setContents(result.data.contents || []);
         setError(null);
       } else {
@@ -67,10 +72,52 @@ const ContentList = () => {
    */
   const handleCreateContent = async (contentData) => {
     console.log('📄 ContentList.handleCreateContent() - Creando contenido:', contentData);
-    const result = await contentController.createContent(contentData);
+    
+    // Separar el archivo PDF del resto de los datos
+    const { filePath, ...contentWithoutFile } = contentData;
+    const pdfFile = filePath instanceof File ? filePath : null;
+    
+    // Para PDFs, no incluir resourceUrl si no está definida
+    if (contentWithoutFile.resourceType === 'pdf' && !contentWithoutFile.resourceUrl) {
+      delete contentWithoutFile.resourceUrl;
+    }
+    
+    const result = await contentController.createContent(contentWithoutFile);
     
     if (result.success) {
       console.log('✅ ContentList.handleCreateContent() - Contenido creado exitosamente');
+      
+      // Si hay un PDF para subir, subirlo ahora
+      console.log('📄 ContentList.handleCreateContent() - Verificando PDF:', {
+        pdfFile: pdfFile,
+        hasPdfFile: !!pdfFile,
+        resultData: result.data,
+        contentId: result.data?.id
+      });
+      
+      if (pdfFile && result.data && result.data.id) {
+        try {
+          console.log('📄 Subiendo PDF para el contenido:', result.data.id);
+          
+          // Usar el hook ya disponible
+          await uploadContentPDF(
+            result.data.id,
+            pdfFile,
+            (response) => {
+              console.log('✅ PDF subido exitosamente:', response);
+              showSuccess('PDF subido correctamente', 'Éxito');
+            },
+            (error) => {
+              console.error('❌ Error al subir PDF:', error);
+              showError('Error al subir PDF: ' + error, 'Error');
+            }
+          );
+        } catch (error) {
+          console.error('❌ Error al subir PDF:', error);
+          showError('Error al subir PDF: ' + error.message, 'Error');
+        }
+      }
+      
       setShowCreateForm(false);
       showSuccess('Contenido creado correctamente', 'Éxito');
       // Recargar la lista completa desde la API para asegurar sincronización
@@ -156,6 +203,10 @@ const ContentList = () => {
 
   // No hay filtros, mostrar todos los contenidos
   const filteredContents = contents;
+  
+  console.log('📄 ContentList - Contents state:', contents);
+  console.log('📄 ContentList - Filtered contents:', filteredContents);
+  console.log('📄 ContentList - Contents length:', filteredContents.length);
 
   if (isLoading) {
     return (
@@ -379,36 +430,77 @@ const ContentForm = ({ content, onSubmit, onCancel, isOpen }) => {
           />
         </div>
         
-        <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-pink-400 mb-2 font-mono">
+            Tipo de Recurso
+          </label>
+          <select
+            value={formData.resourceType}
+            onChange={(e) => setFormData({...formData, resourceType: e.target.value})}
+            className="w-full bg-gray-800 border border-pink-400/50 rounded-md px-3 py-2 text-white font-mono focus:border-pink-400 focus:ring-2 focus:ring-pink-400/20"
+            required
+          >
+            <option value="pdf">📄 PDF</option>
+            <option value="video">🎥 Video</option>
+          </select>
+        </div>
+
+        {/* Campo de URL solo para videos */}
+        {formData.resourceType === 'video' && (
           <div>
             <label className="block text-sm font-medium text-pink-400 mb-2 font-mono">
-              Tipo de Recurso
-            </label>
-            <select
-              value={formData.resourceType}
-              onChange={(e) => setFormData({...formData, resourceType: e.target.value})}
-              className="w-full bg-gray-800 border border-pink-400/50 rounded-md px-3 py-2 text-white font-mono focus:border-pink-400 focus:ring-2 focus:ring-pink-400/20"
-              required
-            >
-              <option value="pdf">📄 PDF</option>
-              <option value="video">🎥 Video</option>
-            </select>
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-pink-400 mb-2 font-mono">
-              URL del Recurso
+              URL del Video
             </label>
             <input
               type="url"
               value={formData.resourceUrl}
               onChange={(e) => setFormData({...formData, resourceUrl: e.target.value})}
               className="w-full bg-gray-800 border border-pink-400/50 rounded-md px-3 py-2 text-white font-mono focus:border-pink-400 focus:ring-2 focus:ring-pink-400/20"
-              placeholder="https://ejemplo.com/recurso.pdf"
+              placeholder="https://ejemplo.com/video.mp4"
               required
             />
           </div>
-        </div>
+        )}
+
+        {/* Información para PDFs */}
+        {formData.resourceType === 'pdf' && (
+          <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
+            <div className="flex items-center">
+              <span className="text-blue-400 text-xl mr-3">ℹ️</span>
+              <div>
+                <h4 className="text-blue-400 font-mono font-bold">Información sobre PDFs</h4>
+                <p className="text-gray-300 font-mono text-sm mt-1">
+                  Para contenidos PDF, puedes subir el archivo después de crear el contenido. 
+                  No es necesario proporcionar una URL inicial.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Subida de PDF para contenidos */}
+        {formData.resourceType === 'pdf' && (
+          <ContentPDF 
+            content={content || { id: 'new', title: formData.title }}
+            onPDFUpdate={(pdfData) => {
+              // Actualizar el contenido con el nuevo PDF
+              setFormData(prev => ({ 
+                ...prev, 
+                resourceUrl: pdfData.pdfUrl,
+                filePath: pdfData.filePath 
+              }));
+            }}
+            onPDFDelete={() => {
+              // Remover el PDF del contenido
+              setFormData(prev => ({ 
+                ...prev, 
+                resourceUrl: '',
+                filePath: null 
+              }));
+            }}
+            canEdit={true}
+          />
+        )}
         
         <div className="flex space-x-3 pt-4">
           <button

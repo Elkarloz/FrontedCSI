@@ -62,7 +62,8 @@ class ExerciseController {
         explanation: exercise.explanation,
         levelId: exercise.levelId,
         levelTitle: exercise.levelTitle,
-        planetTitle: exercise.planetTitle
+        planetTitle: exercise.planetTitle,
+        imageUrl: exercise.imageUrl // Agregar campo de imagen
       }));
       
       console.log('🔍 ExerciseController - Ejercicios transformados:', transformedExercises);
@@ -125,7 +126,8 @@ class ExerciseController {
         levelId: response.data.levelId,
         levelTitle: response.data.levelTitle,
         planetTitle: response.data.planetTitle,
-        hints: response.data.hints || []
+        hints: response.data.hints || [],
+        imageUrl: response.data.imageUrl // Agregar campo de imagen
       };
       
       this.currentExercise = transformedExercise;
