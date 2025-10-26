@@ -51,7 +51,7 @@ const AuthPage = () => {
             setTimeout(() => {
               navigate('/admin');
             }, 100);
-          } else if (result.data?.user?.role === 'student') {
+          } else if (result.data?.user?.role === 'estudiante') {
             console.log('👤 Usuario estudiante detectado, redirigiendo a /student');
             setTimeout(() => {
               navigate('/student');
@@ -78,7 +78,7 @@ const AuthPage = () => {
           name: formData.name,
           email: formData.email,
           password: formData.password,
-          role: 'student'
+          role: 'estudiante'
         });
         
         if (result.success) {

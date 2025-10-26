@@ -41,7 +41,7 @@ const StudentLayout = () => {
       console.log('👤 Usuario actual:', currentUser);
 
       // Verificar que sea estudiante
-      if (currentUser.role !== 'student') {
+      if (currentUser.role !== 'estudiante') {
         console.log('❌ Usuario no es estudiante, redirigiendo...');
         if (currentUser.role === 'admin') {
           navigate('/admin');

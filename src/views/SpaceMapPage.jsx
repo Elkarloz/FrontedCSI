@@ -55,12 +55,29 @@ const SpaceMapPage = () => {
       
       if (result.success) {
         console.log('✅ Usuario cargado exitosamente:', result.data);
-        setCurrentUser(result.data);
+        const user = result.data.data.user;
+        setCurrentUser(user);
+        
+        // Redirigir según el rol del usuario
+        if (user.role === 'estudiante') {
+          console.log('👤 Usuario es estudiante, redirigiendo a /student');
+          navigate('/student');
+          return;
+        } else if (user.role === 'admin') {
+          console.log('👑 Usuario es admin, redirigiendo a /admin');
+          navigate('/admin');
+          return;
+        }
       } else {
         console.log('❌ Error al cargar usuario:', result.message);
+        // Si no hay usuario autenticado, redirigir al login
+        navigate('/auth');
+        return;
       }
     } catch (error) {
       console.error('💥 Error inesperado al cargar usuario actual:', error);
+      navigate('/auth');
+      return;
     }
   };
 
