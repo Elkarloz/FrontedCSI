@@ -7,6 +7,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import UserList from '../UserList.jsx';
 import Modal from '../../components/Modal.jsx';
+import { userController } from '../../controllers/userController.js';
+import { useToast } from '../../components/Toast.jsx';
 
 const AdminUsers = () => {
   const navigate = useNavigate();
@@ -175,20 +177,67 @@ const CreateUserForm = ({ onClose, userData = null, isEdit = false }) => {
     email: userData?.email || '',
     password: '',
     role: userData?.role || 'estudiante',
-    age: userData?.age || '',
-    grade: userData?.grade || ''
+    isActive: userData?.isActive !== undefined ? userData.isActive : true
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState({});
+  const { showSuccess, showError } = useToast();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (isEdit) {
-      console.log('Editando usuario:', formData);
-      // Aquí iría la lógica para editar el usuario
-    } else {
-      console.log('Creando usuario:', formData);
-      // Aquí iría la lógica para crear el usuario
+  // Actualizar el estado del formulario cuando cambien los datos del usuario
+  React.useEffect(() => {
+    if (userData && isEdit) {
+      console.log('🔄 CreateUserForm - Actualizando datos del formulario:', userData);
+      setFormData({
+        name: userData.name || '',
+        email: userData.email || '',
+        password: '', // No cargar la contraseña por seguridad
+        role: userData.role || 'estudiante',
+        isActive: userData.isActive !== undefined ? userData.isActive : true
+      });
     }
-    onClose();
+  }, [userData, isEdit]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    // Validación
+    const newErrors = {};
+    if (!formData.name.trim()) newErrors.name = 'El nombre es requerido';
+    if (!formData.email.trim()) newErrors.email = 'El email es requerido';
+    if (!formData.email.includes('@')) newErrors.email = 'El email debe ser válido';
+    if (!isEdit && !formData.password.trim()) newErrors.password = 'La contraseña es requerida';
+    if (formData.password && formData.password.length < 6) newErrors.password = 'La contraseña debe tener al menos 6 caracteres';
+
+    setErrors(newErrors);
+    
+    if (Object.keys(newErrors).length > 0) return;
+
+    setIsSubmitting(true);
+    try {
+      let result;
+      if (isEdit) {
+        console.log('🔄 Editando usuario:', formData);
+        result = await userController.updateUser(userData.id, formData);
+      } else {
+        console.log('🔄 Creando usuario:', formData);
+        result = await userController.createUser(formData);
+      }
+      
+      if (result.success) {
+        showSuccess(
+          isEdit ? 'Usuario actualizado correctamente' : 'Usuario creado correctamente', 
+          'Éxito'
+        );
+        onClose();
+      } else {
+        showError(result.message || 'Error al procesar el usuario', 'Error');
+      }
+    } catch (error) {
+      console.error('💥 Error en CreateUserForm:', error);
+      showError('Error inesperado al procesar el usuario', 'Error');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -249,44 +298,52 @@ const CreateUserForm = ({ onClose, userData = null, isEdit = false }) => {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-pink-400 font-mono mb-2">
-            Edad
-          </label>
-          <input
-            type="number"
-            value={formData.age}
-            onChange={(e) => setFormData({...formData, age: e.target.value})}
-            className="w-full px-3 py-2 bg-gray-800/50 border border-pink-400/30 rounded-lg text-white font-mono focus:border-pink-400 focus:outline-none"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-pink-400 font-mono mb-2">
-            Grado
-          </label>
-          <input
-            type="text"
-            value={formData.grade}
-            onChange={(e) => setFormData({...formData, grade: e.target.value})}
-            className="w-full px-3 py-2 bg-gray-800/50 border border-pink-400/30 rounded-lg text-white font-mono focus:border-pink-400 focus:outline-none"
-          />
-        </div>
+      {/* Estado Activo */}
+      <div className="flex items-center space-x-3">
+        <input
+          type="checkbox"
+          checked={formData.isActive}
+          onChange={(e) => setFormData({...formData, isActive: e.target.checked})}
+          disabled={isSubmitting}
+          className="h-5 w-5 text-pink-400 bg-gray-800 border-gray-400 rounded focus:ring-pink-400 focus:ring-2"
+        />
+        <label className="text-sm font-bold text-pink-400 font-mono">
+          ✅ Usuario Activo
+        </label>
       </div>
+
+      {/* Mostrar errores */}
+      {Object.keys(errors).length > 0 && (
+        <div className="bg-red-500/20 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg font-mono">
+          <div className="flex items-center">
+            <span className="text-xl mr-2">⚠️</span>
+            <div>
+              {Object.values(errors).map((error, index) => (
+                <div key={index}>{error}</div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="flex justify-end space-x-3 pt-4">
         <button
           type="button"
           onClick={onClose}
-          className="px-4 py-2 text-gray-400 hover:text-white transition-colors duration-200 font-mono"
+          disabled={isSubmitting}
+          className="px-4 py-2 text-gray-400 hover:text-white transition-colors duration-200 font-mono disabled:opacity-50"
         >
           Cancelar
         </button>
         <button
           type="submit"
-          className="px-6 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold rounded-lg font-mono transition-all duration-300 transform hover:scale-105"
+          disabled={isSubmitting}
+          className="px-6 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold rounded-lg font-mono transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:transform-none flex items-center space-x-2"
         >
-          {isEdit ? 'Actualizar Usuario' : 'Crear Usuario'}
+          {isSubmitting && (
+            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+          )}
+          <span>{isSubmitting ? 'Procesando...' : (isEdit ? 'Actualizar Usuario' : 'Crear Usuario')}</span>
         </button>
       </div>
     </form>
