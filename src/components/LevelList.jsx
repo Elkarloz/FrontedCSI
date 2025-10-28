@@ -446,7 +446,7 @@ const LevelForm = ({ level, planets, onSubmit, onCancel, isOpen }) => {
             placeholder="1"
           />
           <p className="text-xs text-gray-500 mt-1 font-mono">
-            Los niveles se mostrarán en este orden dentro del planeta (1 = primero, 2 = segundo, etc.)
+            Los niveles se mostrarán en este orden dentro del planeta
           </p>
         </div>
         

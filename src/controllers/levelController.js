@@ -432,10 +432,10 @@ class LevelController {
         };
       }
 
-      if (!levelData.levelNumber) {
+      if (!levelData.orderIndex) {
         return {
           isValid: false,
-          message: 'Número de nivel es requerido'
+          message: 'Orden del nivel es requerido'
         };
       }
 
@@ -447,13 +447,13 @@ class LevelController {
       }
     }
 
-    // Validar número de nivel
-    if (levelData.levelNumber !== undefined) {
-      const levelNumber = parseInt(levelData.levelNumber);
-      if (isNaN(levelNumber) || levelNumber < 1 || levelNumber > 5) {
+    // Validar orden del nivel
+    if (levelData.orderIndex !== undefined) {
+      const orderIndex = parseInt(levelData.orderIndex);
+      if (isNaN(orderIndex) || orderIndex < 1) {
         return {
           isValid: false,
-          message: 'El número de nivel debe estar entre 1 y 5'
+          message: 'El orden del nivel debe ser un número mayor a 0'
         };
       }
     }

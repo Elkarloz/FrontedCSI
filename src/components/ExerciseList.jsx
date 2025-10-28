@@ -79,6 +79,12 @@ const ExerciseList = ({ levelId }) => {
     
     try {
       const response = await fetch('/api/exercises');
+      
+      // Verificar si la respuesta es exitosa antes de parsear JSON
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const data = await response.json();
       
       if (data.success) {
@@ -87,7 +93,8 @@ const ExerciseList = ({ levelId }) => {
         setError(data.message);
       }
     } catch (error) {
-      setError('Error al cargar ejercicios');
+      console.error('❌ Error al cargar ejercicios:', error);
+      setError('Error al cargar ejercicios: ' + error.message);
     }
     
     setIsLoading(false);
@@ -100,6 +107,12 @@ const ExerciseList = ({ levelId }) => {
     try {
       console.log('🔍 Cargando niveles...');
       const response = await fetch('/api/levels');
+      
+      // Verificar si la respuesta es exitosa antes de parsear JSON
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const data = await response.json();
       
       console.log('📊 Respuesta de niveles:', data);
