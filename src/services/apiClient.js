@@ -3,13 +3,23 @@ import axios from 'axios';
 
 class ApiClient {
   constructor() {
+    // Usar servidor local en desarrollo, producción en producción
+    const baseURL = 'https://apicsi.codevalcanos.com';  // Usar servidor de producción en producción
+    
     this.client = axios.create({
-      baseURL:  'https://apicsi.codevalcanos.com',
+      baseURL: baseURL,
       timeout: 10000,
       headers: {
         'Content-Type': 'application/json',
       },
       withCredentials: true
+    });
+
+    // Log de configuración
+    console.log('🔧 ApiClient configurado:', {
+      baseURL: baseURL,
+      environment: import.meta.env.MODE,
+      isDev: import.meta.env.DEV
     });
 
     this.setupInterceptors();
