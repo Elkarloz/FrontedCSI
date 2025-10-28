@@ -7,6 +7,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { apiClient } from '../services/apiClient';
 import { exerciseController } from '../controllers/exerciseController.js';
 import { useToast } from './Toast.jsx';
 import ConfirmDialog from './ConfirmDialog.jsx';
@@ -78,14 +79,7 @@ const ExerciseList = ({ levelId }) => {
     setError(null);
     
     try {
-      const response = await fetch('/api/exercises');
-      
-      // Verificar si la respuesta es exitosa antes de parsear JSON
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const data = await response.json();
+      const { data } = await apiClient.get('/api/exercises');
       
       if (data.success) {
         setExercises(data.data);
@@ -106,14 +100,7 @@ const ExerciseList = ({ levelId }) => {
   const loadLevels = async () => {
     try {
       console.log('🔍 Cargando niveles...');
-      const response = await fetch('/api/levels');
-      
-      // Verificar si la respuesta es exitosa antes de parsear JSON
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const data = await response.json();
+      const { data } = await apiClient.get('/api/levels');
       
       console.log('📊 Respuesta de niveles:', data);
       
@@ -683,8 +670,7 @@ const ExerciseForm = ({ exercise, onSubmit, onCancel, isOpen }) => {
   // Cargar niveles disponibles
   const loadLevels = async () => {
     try {
-      const response = await fetch('/api/levels');
-      const data = await response.json();
+      const { data } = await apiClient.get('/api/levels');
       
       if (data.success) {
         setLevels(data.data);
