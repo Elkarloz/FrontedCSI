@@ -338,20 +338,14 @@ class PlanetController {
       }
       
       // La descripción es opcional, no se valida
-      
-      if (!planetData.difficulty || !['easy', 'medium', 'hard'].includes(planetData.difficulty)) {
-        errors.push('La dificultad debe ser: easy, medium o hard');
-      }
+      // La dificultad no es requerida para planetas
     } else {
       if (planetData.name && planetData.name.trim().length < 2) {
         errors.push('El nombre debe tener al menos 2 caracteres');
       }
       
       // La descripción es opcional, no se valida
-      
-      if (planetData.difficulty && !['easy', 'medium', 'hard'].includes(planetData.difficulty)) {
-        errors.push('La dificultad debe ser: easy, medium o hard');
-      }
+      // La dificultad no es requerida para planetas
     }
     
     return {
