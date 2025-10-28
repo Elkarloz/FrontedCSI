@@ -69,7 +69,53 @@ class UserController {
   }
 
   /**
-   * Crea un nuevo usuario con validación de datos
+   * Registra un nuevo usuario (endpoint público)
+   * @param {Object} userData - Datos del usuario
+   * @returns {Promise<Object>} Resultado del registro
+   */
+  async register(userData) {
+    try {
+      console.log('🔄 UserController.register() - Iniciando registro público:', userData);
+      this.setLoading(true);
+      this.clearError();
+      
+      // Validar datos antes de enviar
+      const validation = this.validateUserData(userData);
+      if (!validation.isValid) {
+        throw new Error(validation.message);
+      }
+      
+      // Preparar datos para el servicio (sin role, se asigna automáticamente como 'estudiante')
+      const preparedData = this.prepareUserData(userData, false);
+      
+      console.log('🔄 UserController.register() - Llamando a userService.register()');
+      const response = await this.userService.register(preparedData);
+      console.log('🔄 UserController.register() - Respuesta del servicio:', response);
+      
+      if (!response.success) {
+        throw new Error(response.message || 'Error al registrar usuario');
+      }
+      
+      return {
+        success: true,
+        data: response.data,
+        message: 'Usuario registrado correctamente'
+      };
+    } catch (error) {
+      console.error('💥 UserController.register() - Error:', error);
+      this.setError(error.message);
+      return {
+        success: false,
+        data: null,
+        message: error.message
+      };
+    } finally {
+      this.setLoading(false);
+    }
+  }
+
+  /**
+   * Crea un nuevo usuario (endpoint de admin)
    * @param {Object} userData - Datos del usuario
    * @returns {Promise<Object>} Resultado de la creación
    */
@@ -351,16 +397,23 @@ class UserController {
   /**
    * Prepara los datos del usuario para enviar al servicio
    * @param {Object} userData - Datos originales
+   * @param {boolean} includeRole - Si debe incluir el role (por defecto true)
    * @returns {Object} Datos preparados
    */
-  prepareUserData(userData) {
-    return {
+  prepareUserData(userData, includeRole = true) {
+    const preparedData = {
       name: userData.name?.trim(),
       email: userData.email?.toLowerCase().trim(),
       password: userData.password,
-      role: userData.role || 'estudiante',
       isActive: userData.isActive !== undefined ? userData.isActive : true
     };
+    
+    // Solo incluir role si se especifica
+    if (includeRole) {
+      preparedData.role = userData.role || 'estudiante';
+    }
+    
+    return preparedData;
   }
 
   /**

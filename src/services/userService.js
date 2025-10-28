@@ -74,7 +74,36 @@ class UserService {
   }
 
   /**
-   * Crea un nuevo usuario
+   * Registra un nuevo usuario (endpoint público)
+   * @param {Object} userData - Datos del usuario
+   * @returns {Promise<Object>} Respuesta de la API
+   */
+  async register(userData) {
+    try {
+      console.log('🔄 UserService.register() - Iniciando registro público:', userData);
+      const response = await this.apiClient.post('/api/auth/register', userData);
+      console.log('🔄 UserService.register() - Respuesta recibida:', response.data);
+      
+      if (response.data && response.data.success) {
+        return {
+          success: true,
+          data: response.data.data,
+          message: response.data.message || 'Usuario registrado correctamente'
+        };
+      } else {
+        return {
+          success: false,
+          data: null,
+          message: response.data?.message || 'Error al registrar usuario'
+        };
+      }
+    } catch (error) {
+      return this.handleError(error, 'Error al registrar usuario');
+    }
+  }
+
+  /**
+   * Crea un nuevo usuario (endpoint de admin)
    * @param {Object} userData - Datos del usuario
    * @returns {Promise<Object>} Respuesta de la API
    */
