@@ -19,7 +19,6 @@ const PlanetList = () => {
   const [error, setError] = useState(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingPlanet, setEditingPlanet] = useState(null);
-  const [selectedDifficulty, setSelectedDifficulty] = useState('all');
   const [confirmDialog, setConfirmDialog] = useState({
     isOpen: false,
     type: 'warning',
@@ -186,10 +185,8 @@ const PlanetList = () => {
   };
 
 
-  // Filtrar planetas por dificultad (todos los planetas por ahora, ya que la API no devuelve difficulty)
-  const filteredPlanets = planets.filter(planet => 
-    selectedDifficulty === 'all' || true // Mostrar todos los planetas por ahora
-  );
+  // Mostrar todos los planetas
+  const filteredPlanets = planets;
 
   if (isLoading) {
     return (

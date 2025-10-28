@@ -41,7 +41,7 @@ class PlanetController {
         title: planet.title || planet.name, // Mantener el campo title para consistencia con el backend
         name: planet.title || planet.name, // También mantener name para compatibilidad
         description: planet.description,
-        difficulty: 'medium', // El backend no tiene campo difficulty, usar default
+        difficulty: 'medium', // Campo legacy, no se usa en el backend actual
         orderIndex: planet.orderIndex || 0, // Incluir el campo de orden
         isUnlocked: planet.isActive === 1,
         totalLevels: planet.totalLevels || planet.levelsCount || 0,
@@ -96,7 +96,7 @@ class PlanetController {
         id: response.data.id,
         name: response.data.name,
         description: response.data.description,
-        difficulty: response.data.difficulty,
+        difficulty: response.data.difficulty || 'medium', // Campo legacy
         isUnlocked: response.data.isUnlocked,
         levels: response.data.levels?.map(level => ({
           id: level.id,
@@ -107,7 +107,7 @@ class PlanetController {
           isUnlocked: level.isUnlocked,
           exercises: level.exercises?.length || 0
         })) || [],
-        color: this.getPlanetColor(response.data.difficulty)
+        color: this.getPlanetColor(response.data.difficulty || 'medium')
       };
       
       this.currentPlanet = transformedPlanet;
@@ -384,7 +384,7 @@ class PlanetController {
   }
 
   /**
-   * Obtiene el color del planeta basado en su dificultad
+   * Obtiene el color del planeta basado en su dificultad (método legacy)
    * @param {string} difficulty - Dificultad del planeta
    * @returns {string} Color hexadecimal
    */

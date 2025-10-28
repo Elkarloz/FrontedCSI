@@ -177,23 +177,6 @@ class PlanetService {
     }
   }
 
-  /**
-   * Obtiene planetas por dificultad
-   * @param {string} difficulty - Dificultad del planeta
-   * @returns {Promise<Object>} Respuesta de la API
-   */
-  async getPlanetsByDifficulty(difficulty) {
-    try {
-      const response = await this.apiClient.get(`${this.baseUrl}?difficulty=${difficulty}`);
-      return {
-        success: true,
-        data: response.data.data, // El backend devuelve {success, data, message}, necesitamos response.data.data
-        message: 'Planetas por dificultad obtenidos correctamente'
-      };
-    } catch (error) {
-      return this.handleError(error, 'Error al obtener planetas por dificultad');
-    }
-  }
 
   /**
    * Obtiene planetas desbloqueados del usuario
