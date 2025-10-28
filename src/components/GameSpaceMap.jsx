@@ -19,22 +19,75 @@ const GameSpaceMap = ({ planets = [], onPlanetSelect, currentPlanetId = null }) 
   // Función para asignar colores y posiciones a planetas reales
   const getPlanetConfig = (planet, index) => {
     const totalPlanets = planets.length;
-    // Usar orderIndex del planeta (que viene de difficulty_order en la BD)
     const planetOrder = planet.orderIndex || (index + 1);
-    // Ajustar el ángulo para que el planeta 1 esté en la izquierda (270°)
-    const angle = ((planetOrder - 1) / totalPlanets) * 2 * Math.PI - Math.PI / 2;
-    const radius = 35; // Radio del círculo de planetas
-    const centerX = 50;
-    const centerY = 50;
     
-    const x = centerX + radius * Math.cos(angle);
-    const y = centerY + radius * Math.sin(angle);
+    // Usar el índice del array en lugar del orderIndex para posicionamiento
+    // Esto evita problemas cuando los orderIndex no son consecutivos
+    const planetIndex = index; // Usar índice del array (0, 1, 2, ...)
+    
+    
+    // Calcular posiciones de manera robusta para evitar superposiciones
+    const calculatePlanetPosition = (totalPlanets, planetIndex) => {
+      const planetSize = 70; // Tamaño máximo del planeta en px
+      const minDistance = 120; // Distancia mínima entre planetas en px
+      const containerWidth = 800; // Ancho del contenedor en px
+      const containerHeight = 600; // Alto del contenedor en px
+      
+      let position;
+      
+      if (totalPlanets === 1) {
+        position = { x: containerWidth / 2, y: containerHeight / 2 };
+      } else if (totalPlanets === 2) {
+        // Dos planetas en línea horizontal con separación garantizada
+        const centerX = containerWidth / 2;
+        const centerY = containerHeight / 2;
+        const separation = Math.max(minDistance, containerWidth * 0.35);
+        position = planetIndex === 0 
+          ? { x: centerX - separation / 2, y: centerY }
+          : { x: centerX + separation / 2, y: centerY };
+          
+      } else if (totalPlanets === 3) {
+        // Tres planetas en triángulo con separación garantizada
+        const centerX = containerWidth / 2;
+        const centerY = containerHeight / 2;
+        const radius = Math.max(minDistance / 2, containerWidth * 0.22);
+        const angle = (planetIndex / totalPlanets) * 2 * Math.PI - Math.PI / 2;
+        
+        position = {
+          x: centerX + Math.cos(angle) * radius,
+          y: centerY + Math.sin(angle) * radius
+        };
+        
+      } else {
+        // Para más de 3 planetas, usar distribución circular
+        const centerX = containerWidth / 2;
+        const centerY = containerHeight / 2;
+        const radius = Math.max(minDistance / 2, containerWidth * 0.28);
+        const angle = (planetIndex / totalPlanets) * 2 * Math.PI - Math.PI / 2;
+        
+        position = {
+          x: centerX + Math.cos(angle) * radius,
+          y: centerY + Math.sin(angle) * radius
+        };
+        
+      }
+      
+      // Convertir a porcentajes y asegurar límites
+      const x = Math.max(15, Math.min(85, (position.x / containerWidth) * 100));
+      const y = Math.max(15, Math.min(85, (position.y / containerHeight) * 100));
+      
+      
+      return { x, y };
+    };
+    
+    const position = calculatePlanetPosition(totalPlanets, planetIndex);
+    
     
     return {
       id: planet.id,
       name: planet.title || planet.name || `Planeta ${planetOrder}`,
-      x: Math.max(10, Math.min(90, x)), // Limitar entre 10% y 90%
-      y: Math.max(10, Math.min(90, y)), // Limitar entre 10% y 90%
+      x: position.x,
+      y: position.y,
       color: planetColors[(planetOrder - 1) % planetColors.length],
       size: 50 + ((planetOrder - 1) % 3) * 10, // Tamaños variados: 50, 60, 70
       level: planetOrder,
@@ -127,6 +180,7 @@ const GameSpaceMap = ({ planets = [], onPlanetSelect, currentPlanetId = null }) 
 
   // Ordenar planetas por orderIndex antes de renderizar
   const sortedPlanets = [...planets].sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0));
+  
 
   return (
     <div className="game-space-map" ref={containerRef}>
@@ -158,23 +212,20 @@ const GameSpaceMap = ({ planets = [], onPlanetSelect, currentPlanetId = null }) 
               >
                 <div className="planet-ring"></div>
                 <div className="planet-number">{planetConfig.level}</div>
-                
-                {/* Nave espacial sobre el planeta actual */}
+                        {/* Nave espacial sobre el planeta actual */}
                 {planetConfig.level === 1 && (
                   <div className="planet-spaceship">
                     <div className="spaceship-icon">🚀</div>
                   </div>
                 )}
-                
-                {/* Estrellas de progreso */}
+                        {/* Estrellas de progreso */}
                 <div className="progress-stars">
                   {[1, 2, 3].map((star) => (
                     <div key={star} className="star">★</div>
                   ))}
                 </div>
               </div>
-              
-              {/* Nombre del planeta */}
+                    {/* Nombre del planeta */}
               <div className="planet-name">{planetConfig.name}</div>
             </div>
           );
