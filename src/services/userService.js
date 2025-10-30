@@ -20,20 +20,16 @@ class UserService {
    */
   async getAllUsers() {
     try {
-      console.log('🔄 UserService.getAllUsers() - Iniciando petición a:', this.baseUrl);
       const response = await this.apiClient.get(this.baseUrl);
-      console.log('🔄 UserService.getAllUsers() - Respuesta recibida:', response.data);
       
       // Verificar si la respuesta del backend fue exitosa
       if (response.data && response.data.success) {
-        console.log('✅ UserService.getAllUsers() - Respuesta exitosa, usuarios:', response.data.data.users);
         return {
           success: true,
           data: response.data.data.users,
           message: response.data.message || 'Usuarios obtenidos correctamente'
         };
       } else {
-        console.error('❌ UserService.getAllUsers() - Respuesta no exitosa:', response.data);
         return {
           success: false,
           data: [],
@@ -41,7 +37,6 @@ class UserService {
         };
       }
     } catch (error) {
-      console.error('💥 UserService.getAllUsers() - Error en petición:', error);
       return this.handleError(error, 'Error al obtener usuarios');
     }
   }
@@ -80,9 +75,7 @@ class UserService {
    */
   async register(userData) {
     try {
-      console.log('🔄 UserService.register() - Iniciando registro público:', userData);
       const response = await this.apiClient.post('/api/auth/register', userData);
-      console.log('🔄 UserService.register() - Respuesta recibida:', response.data);
       
       if (response.data && response.data.success) {
         return {
@@ -255,9 +248,7 @@ class UserService {
    */
   async getCurrentUser() {
     try {
-      console.log('👤 UserService.getCurrentUser() - Iniciando petición a /api/auth/me');
       const response = await this.apiClient.get('/api/auth/me');
-      console.log('👤 UserService.getCurrentUser() - Respuesta recibida:', response.data);
       
       return {
         success: true,
@@ -265,7 +256,6 @@ class UserService {
         message: 'Perfil obtenido correctamente'
       };
     } catch (error) {
-      console.log('❌ UserService.getCurrentUser() - Error:', error);
       return this.handleError(error, 'Error al obtener perfil');
     }
   }
@@ -313,7 +303,6 @@ class UserService {
    * @returns {Object} Respuesta de error
    */
   handleError(error, defaultMessage) {
-    console.error('UserService Error:', error);
     
     let message = defaultMessage;
     let statusCode = 500;

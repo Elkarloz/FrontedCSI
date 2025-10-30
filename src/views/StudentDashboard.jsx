@@ -33,6 +33,22 @@ const StudentDashboard = () => {
       color: 'orange',
       icon: '🚀',
       path: '/student/game'
+    },
+    {
+      id: 'progress',
+      label: 'Ver Progreso',
+      description: 'Revisa tu avance por nivel y planeta',
+      color: 'pink',
+      icon: '📈',
+      path: '/student/progress'
+    },
+    {
+      id: 'achievements',
+      label: 'Mis Logros',
+      description: 'Ver todos tus logros y recompensas obtenidas',
+      color: 'yellow',
+      icon: '🏆',
+      path: '/student/achievements'
     }
   ];
 
@@ -54,7 +70,7 @@ const StudentDashboard = () => {
         </div>
 
         {/* Student Options Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {studentOptions.map((option) => (
             <button
               key={option.id}

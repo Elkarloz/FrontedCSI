@@ -8,6 +8,8 @@
  */
 
 import { exerciseService } from '../services/exerciseService.js';
+import { progressService } from '../services/progressService.js';
+import { getCurrentUser } from '../utils/authHelper.js';
 
 class ExerciseController {
   constructor() {
@@ -39,8 +41,6 @@ class ExerciseController {
       
       // Asegurar que response.data es un array
       const exercisesArray = Array.isArray(response.data) ? response.data : [];
-      console.log('🔍 ExerciseController - Datos recibidos del servicio:', response.data);
-      console.log('🔍 ExerciseController - Array de ejercicios:', exercisesArray);
       
       // Transformar datos para la vista
       const transformedExercises = exercisesArray.map(exercise => ({
@@ -66,7 +66,7 @@ class ExerciseController {
         imageUrl: exercise.imageUrl // Agregar campo de imagen
       }));
       
-      console.log('🔍 ExerciseController - Ejercicios transformados:', transformedExercises);
+      
       
       return {
         success: true,
@@ -238,7 +238,7 @@ class ExerciseController {
    * @param {*} answer - Respuesta del usuario
    * @returns {Promise<Object>} Resultado de la respuesta
    */
-  async submitAnswer(exerciseId, answer) {
+  async submitAnswer(exerciseId, answer, { timeTaken = 0, hintsUsed = 0 } = {}) {
     try {
       this.setLoading(true);
       this.clearError();
@@ -251,10 +251,29 @@ class ExerciseController {
         throw new Error('La respuesta es requerida');
       }
       
-      const response = await this.exerciseService.submitAnswer(exerciseId, answer);
+      const currentUser = getCurrentUser();
+      const response = await this.exerciseService.submitAnswer(exerciseId, answer, {
+        timeTaken,
+        hintsUsed,
+        userId: currentUser?.id
+      });
       
       if (!response.success) {
         throw new Error(response.message || 'Error al enviar respuesta');
+      }
+      // Also submit to progress endpoint (non-blocking)
+      // Ya se persiste con /exercises/:id/submit; mantenemos el submit de progreso como redundancia opcional
+      try {
+        if (currentUser?.id) {
+          progressService.submitExerciseAttempt({
+            userId: currentUser.id,
+            exerciseId,
+            userAnswer: answer,
+            timeTaken,
+            hintsUsed
+          });
+        }
+      } catch (e) {
       }
       
       return {

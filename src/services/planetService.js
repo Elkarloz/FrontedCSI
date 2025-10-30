@@ -220,7 +220,6 @@ class PlanetService {
    * @returns {Object} Respuesta de error
    */
   handleError(error, defaultMessage) {
-    console.error('PlanetService Error:', error);
     
     let message = defaultMessage;
     let statusCode = 500;

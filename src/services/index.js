@@ -8,6 +8,8 @@ import { planetService } from './planetService.js';
 import { exerciseService } from './exerciseService.js';
 import { levelService } from './levelService.js';
 import { contentService } from './contentService.js';
+import { achievementService } from './achievementService.js';
+import { reportService } from './reportService.js';
 import { apiClient } from './apiClient.js';
 
 // Re-exportar todos los servicios
@@ -17,6 +19,8 @@ export {
   exerciseService,
   levelService,
   contentService,
+  achievementService,
+  reportService,
   apiClient
 };
 
@@ -27,6 +31,8 @@ export const services = {
   exercise: exerciseService,
   level: levelService,
   content: contentService,
+  achievement: achievementService,
+  report: reportService,
   api: apiClient
 };
 

@@ -89,7 +89,8 @@ const AdminLayout = () => {
       '/admin/game': 'Gestión del Juego',
       '/admin/game/planets': 'Gestionar Planetas',
       '/admin/game/levels': 'Gestionar Niveles',
-      '/admin/game/exercises': 'Gestionar Ejercicios'
+      '/admin/game/exercises': 'Gestionar Ejercicios',
+      '/admin/reports': 'Reportes de Progreso'
     };
     return titles[path] || 'Panel de Administración';
   };

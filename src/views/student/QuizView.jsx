@@ -7,12 +7,14 @@
  * - Navegación entre preguntas
  */
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { exerciseController } from "../../controllers/exerciseController.js";
+import { levelController } from "../../controllers/levelController.js";
 import { useToast } from "../../components/Toast.jsx";
 import LoadingSpinner from "../../components/LoadingSpinner.jsx";
 import ExerciseImage from "../../components/ExerciseImage.jsx";
+import bgmSrc from "../../utils/1.mp3";
 
 const QuizView = () => {
   const { levelId, exerciseId } = useParams();
@@ -27,13 +29,80 @@ const QuizView = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [timeUp, setTimeUp] = useState(false);
+  const [exercisesInLevel, setExercisesInLevel] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(null);
   const { showSuccess, showError } = useToast();
+  const audioRef = useRef(null);
+  const startedRef = useRef(false);
 
   useEffect(() => {
     if (exerciseId) {
       loadExercise();
     }
   }, [exerciseId]);
+
+  // Cargar lista de ejercicios del nivel y calcular progreso (índice actual)
+  useEffect(() => {
+    const loadExercisesForLevel = async () => {
+      if (!levelId || !exerciseId) return;
+      try {
+        const result = await exerciseController.getExercisesByLevel(levelId);
+        if (result.success && Array.isArray(result.data)) {
+          setExercisesInLevel(result.data);
+          const idx = result.data.findIndex(
+            (ex) => ex.id?.toString() === exerciseId.toString()
+          );
+          setCurrentIndex(idx >= 0 ? idx : null);
+        }
+      } catch (e) {
+        // Silenciar: el flujo sigue funcionando sin el progreso visual
+      }
+    };
+    loadExercisesForLevel();
+  }, [levelId, exerciseId]);
+
+  // Música de fondo también en el quiz
+  useEffect(() => {
+    if (!audioRef.current) {
+      audioRef.current = new Audio(bgmSrc);
+      audioRef.current.loop = true;
+      audioRef.current.volume = 0.25;
+    }
+
+    const tryStart = async () => {
+      if (startedRef.current) return;
+      try {
+        await audioRef.current.play();
+        startedRef.current = true;
+      } catch (e) {}
+    };
+
+    tryStart();
+
+    const onFirstInteract = () => {
+      if (!startedRef.current && audioRef.current) {
+        audioRef.current.play().catch(() => {});
+        startedRef.current = true;
+      }
+      window.removeEventListener('click', onFirstInteract);
+      window.removeEventListener('keydown', onFirstInteract);
+      window.removeEventListener('touchstart', onFirstInteract);
+    };
+    window.addEventListener('click', onFirstInteract);
+    window.addEventListener('keydown', onFirstInteract);
+    window.addEventListener('touchstart', onFirstInteract, { passive: true });
+
+    return () => {
+      window.removeEventListener('click', onFirstInteract);
+      window.removeEventListener('keydown', onFirstInteract);
+      window.removeEventListener('touchstart', onFirstInteract);
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
+      startedRef.current = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (exercise && exercise.timeLimit > 0 && !isAnswered) {
@@ -70,12 +139,10 @@ const QuizView = () => {
       const result = await exerciseController.getExerciseById(exerciseId);
       if (result.success) {
         setExercise(result.data);
-        console.log('🔄 QuizView.loadExercise() - Nuevo ejercicio cargado:', result.data.id);
       } else {
         throw new Error(result.message);
       }
     } catch (error) {
-      console.error("💥 QuizView.loadExercise() - Error:", error);
       const errorMessage = "Error al cargar el ejercicio: " + error.message;
       setError(errorMessage);
       showError(errorMessage, "Error de carga");
@@ -91,19 +158,24 @@ const QuizView = () => {
     if (isAnswered) return;
 
     setSelectedAnswer(answer);
+    // Auto-enviar inmediatamente al seleccionar
+    setTimeout(() => {
+      handleSubmitAnswer(answer);
+    }, 50);
   };
 
   /**
    * Maneja el envío de la respuesta
    */
-  const handleSubmitAnswer = async () => {
-    if (!selectedAnswer || isAnswered) return;
+  const handleSubmitAnswer = async (overrideAnswer = null) => {
+    const answerToSend = overrideAnswer ?? selectedAnswer;
+    if (!answerToSend || isAnswered) return;
 
     setIsAnswered(true);
 
     try {
       // Evaluar respuesta
-      const isAnswerCorrect = selectedAnswer === exercise.correctAnswer;
+      const isAnswerCorrect = answerToSend === exercise.correctAnswer;
       setIsCorrect(isAnswerCorrect);
 
       // Calcular puntuación
@@ -122,14 +194,52 @@ const QuizView = () => {
       }
 
       // Enviar respuesta al backend
+      const effectiveTimeTaken = exercise.timeLimit > 0 && timeLeft !== null ? (exercise.timeLimit - timeLeft) : 0;
       const result = await exerciseController.submitAnswer(
         exerciseId,
-        selectedAnswer
+        answerToSend,
+        { timeTaken: effectiveTimeTaken, hintsUsed: 0 }
       );
       if (result.success) {
+        // Mostrar notificación de logros obtenidos
+        // Intentar diferentes estructuras de respuesta
+        const responseData = result.data?.data || result.data || {};
+        
+        console.log('🔔 Verificando logros obtenidos:', {
+          hasData: !!result.data,
+          responseDataKeys: Object.keys(responseData || {}),
+          newlyGranted: responseData?.newly_granted_achievements,
+          achievements: responseData?.achievements?.length
+        });
+        
+        const newlyGranted = responseData?.newly_granted_achievements || [];
+        const achievements = responseData?.achievements || [];
+        
+        if (Array.isArray(newlyGranted) && newlyGranted.length > 0) {
+          console.log('🏆 Logros otorgados detectados:', newlyGranted);
+          
+          newlyGranted.forEach(achievement => {
+            // Buscar información completa del logro
+            const fullAchievement = achievements.find(
+              a => a.code === achievement.code || 
+                   a.achievement_id === achievement.achievementId ||
+                   a.achievement_id === achievement.achievement_id
+            ) || achievement;
+            
+            const achievementName = fullAchievement.name || fullAchievement.code || 'Logro Desbloqueado';
+            console.log('🎉 Mostrando notificación para:', achievementName);
+            
+            showSuccess(
+              `¡Has obtenido el logro "${achievementName}"! 🏆`,
+              '¡Nuevo Logro Desbloqueado!',
+              8000
+            );
+          });
+        } else {
+          console.log('ℹ️ No se encontraron logros nuevos otorgados');
+        }
       }
     } catch (error) {
-      console.error("💥 Error al enviar respuesta:", error);
       showError("Error al enviar respuesta", "Error de conexión");
     }
   };
@@ -150,19 +260,28 @@ const QuizView = () => {
   /**
    * Regresa a los niveles del planeta
    */
-  const handleBackToLevels = () => {
-    console.log('🔄 QuizView.handleBackToLevels() - Navegando a niveles del planeta');
-    console.log('🔄 Exercise data:', exercise);
-    console.log('🔄 LevelId:', levelId);
-    
-    // El nivel 19 pertenece al planeta 12 (TEOREMA FUNDAMENTAL)
-    const planetId = 12;
-    
-    console.log('🔄 PlanetId final:', planetId);
-    console.log('🔄 Navegando a:', `/student/planets/${planetId}/levels`);
-    
-    // Navegar a la vista de niveles del planeta
-    navigate(`/student/planets/${planetId}/levels`);
+  const handleBackToLevels = async () => {
+    try {
+      let planetId = null;
+
+      // Intentar resolver el planeta a partir del nivel
+      if (levelId) {
+        const lvl = await levelController.getLevelById(levelId);
+        if (lvl.success && lvl.data?.planetId) {
+          planetId = lvl.data.planetId;
+        }
+      }
+
+      // Fallback seguro: si no se pudo resolver, ir al mapa del estudiante
+      if (!planetId) {
+        navigate('/student');
+        return;
+      }
+
+      navigate(`/student/planets/${planetId}/levels`);
+    } catch (e) {
+      navigate('/student');
+    }
   };
 
   /**
@@ -170,40 +289,29 @@ const QuizView = () => {
    */
   const handleNextExercise = async () => {
     try {
-      console.log('🔄 QuizView.handleNextExercise() - Iniciando navegación...');
-      console.log('📊 Nivel actual:', levelId, 'Ejercicio actual:', exerciseId);
       
       // Cargar todos los ejercicios del nivel
       const result = await exerciseController.getExercisesByLevel(levelId);
-      console.log('📋 Resultado de getExercisesByLevel:', result);
 
       if (result.success && result.data && result.data.length > 0) {
         const exercises = result.data;
-        console.log('📚 Ejercicios encontrados:', exercises.length);
-        console.log('📚 IDs de ejercicios:', exercises.map(ex => ex.id));
         
         const currentIndex = exercises.findIndex(
           (ex) => ex.id.toString() === exerciseId.toString()
         );
-        console.log('📍 Índice actual:', currentIndex);
 
         if (currentIndex !== -1 && currentIndex < exercises.length - 1) {
           // Hay siguiente ejercicio
           const nextExercise = exercises[currentIndex + 1];
-          console.log('➡️ Siguiente ejercicio:', nextExercise.id);
           navigate(`/quiz/${levelId}/${nextExercise.id}`);
         } else {
           // No hay más ejercicios, volver a la lista
-          console.log('🏁 No hay más ejercicios, volviendo a niveles');
           handleBackToLevels();
         }
       } else {
-        console.warn("⚠️ QuizView - No se pudieron cargar los ejercicios");
-        console.warn("⚠️ Resultado:", result);
         handleBackToLevels();
       }
     } catch (error) {
-      console.error("💥 QuizView.handleNextExercise() - Error:", error);
       handleBackToLevels();
     }
   };
@@ -309,6 +417,14 @@ const QuizView = () => {
                 <span className="text-cyan-400 mr-2">⭐</span>
                 <span className="text-gray-300">Puntuación: {score}</span>
               </div>
+                {currentIndex !== null && exercisesInLevel.length > 0 && (
+                  <div className="flex items-center text-yellow-300">
+                    <span className="text-xl mr-2">🛰️</span>
+                    <span className="font-bold">
+                      Pregunta {currentIndex + 1}/{exercisesInLevel.length}
+                    </span>
+                  </div>
+                )}
               {exercise.timeLimit > 0 && timeLeft !== null && (
                 <div
                   className={`flex items-center ${
@@ -490,15 +606,15 @@ const QuizView = () => {
                   </div>
                 )}
                 <button
-                  onClick={isCorrect ? handleNextExercise : timeUp ? () => window.location.reload() : handleBackToLevels}
+                  onClick={timeUp ? () => window.location.reload() : handleNextExercise}
                   style={{ margin: "20px" }}
                   className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold py-4 px-8 rounded-lg font-mono transition-all duration-300"
                 >
-                  {isCorrect
-                    ? "Siguiente Pregunta →"
-                    : timeUp
+                  {timeUp
                     ? "Intentar de Nuevo"
-                    : "Volver a Ejercicios"}
+                    : currentIndex !== null && exercisesInLevel.length > 0 && currentIndex === exercisesInLevel.length - 1
+                    ? "Finalizar"
+                    : "Siguiente Pregunta →"}
                 </button>
               </div>
             )}

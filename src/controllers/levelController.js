@@ -23,19 +23,16 @@ class LevelController {
    */
   async getAllLevels(filters = {}) {
     try {
-      console.log('📚 LevelController.getAllLevels() - Iniciando...', filters);
       
       const result = await this.levelService.getAllLevels(filters);
       
       if (result.success) {
-        console.log('✅ LevelController.getAllLevels() - Niveles obtenidos:', result.data?.length || 0);
         return {
           success: true,
           data: result.data,
           message: 'Niveles obtenidos correctamente'
         };
       } else {
-        console.error('❌ LevelController.getAllLevels() - Error del servicio:', result.message);
         return {
           success: false,
           data: null,
@@ -43,7 +40,6 @@ class LevelController {
         };
       }
     } catch (error) {
-      console.error('💥 LevelController.getAllLevels() - Error inesperado:', error);
       return {
         success: false,
         data: null,
@@ -59,7 +55,6 @@ class LevelController {
    */
   async getLevelById(levelId) {
     try {
-      console.log('📚 LevelController.getLevelById() - Obteniendo nivel:', levelId);
       
       if (!levelId) {
         return {
@@ -72,14 +67,12 @@ class LevelController {
       const result = await this.levelService.getLevelById(levelId);
       
       if (result.success) {
-        console.log('✅ LevelController.getLevelById() - Nivel obtenido');
         return {
           success: true,
           data: result.data,
           message: 'Nivel obtenido correctamente'
         };
       } else {
-        console.error('❌ LevelController.getLevelById() - Error del servicio:', result.message);
         return {
           success: false,
           data: null,
@@ -87,7 +80,6 @@ class LevelController {
         };
       }
     } catch (error) {
-      console.error('💥 LevelController.getLevelById() - Error inesperado:', error);
       return {
         success: false,
         data: null,
@@ -103,7 +95,6 @@ class LevelController {
    */
   async getLevelWithExercises(levelId) {
     try {
-      console.log('📚 LevelController.getLevelWithExercises() - Obteniendo nivel con ejercicios:', levelId);
       
       if (!levelId) {
         return {
@@ -116,14 +107,12 @@ class LevelController {
       const result = await this.levelService.getLevelWithExercises(levelId);
       
       if (result.success) {
-        console.log('✅ LevelController.getLevelWithExercises() - Nivel con ejercicios obtenido');
         return {
           success: true,
           data: result.data,
           message: 'Nivel con ejercicios obtenido correctamente'
         };
       } else {
-        console.error('❌ LevelController.getLevelWithExercises() - Error del servicio:', result.message);
         return {
           success: false,
           data: null,
@@ -131,7 +120,6 @@ class LevelController {
         };
       }
     } catch (error) {
-      console.error('💥 LevelController.getLevelWithExercises() - Error inesperado:', error);
       return {
         success: false,
         data: null,
@@ -147,7 +135,6 @@ class LevelController {
    */
   async createLevel(levelData) {
     try {
-      console.log('📚 LevelController.createLevel() - Creando nivel:', levelData);
       
       // Validaciones de negocio
       const validation = this.validateLevelData(levelData);
@@ -159,17 +146,17 @@ class LevelController {
         };
       }
       
-      const result = await this.levelService.createLevel(levelData);
+      // Preparar datos para enviar al backend
+      const preparedData = this.prepareLevelData(levelData);
+      const result = await this.levelService.createLevel(preparedData);
       
       if (result.success) {
-        console.log('✅ LevelController.createLevel() - Nivel creado exitosamente');
         return {
           success: true,
           data: result.data,
           message: 'Nivel creado correctamente'
         };
       } else {
-        console.error('❌ LevelController.createLevel() - Error del servicio:', result.message);
         return {
           success: false,
           data: null,
@@ -177,7 +164,6 @@ class LevelController {
         };
       }
     } catch (error) {
-      console.error('💥 LevelController.createLevel() - Error inesperado:', error);
       return {
         success: false,
         data: null,
@@ -194,7 +180,6 @@ class LevelController {
    */
   async updateLevel(levelId, levelData) {
     try {
-      console.log('📚 LevelController.updateLevel() - Actualizando nivel:', levelId, levelData);
       
       if (!levelId) {
         return {
@@ -214,17 +199,17 @@ class LevelController {
         };
       }
       
-      const result = await this.levelService.updateLevel(levelId, levelData);
+      // Preparar datos para enviar al backend
+      const preparedData = this.prepareLevelData(levelData);
+      const result = await this.levelService.updateLevel(levelId, preparedData);
       
       if (result.success) {
-        console.log('✅ LevelController.updateLevel() - Nivel actualizado exitosamente');
         return {
           success: true,
           data: result.data,
           message: 'Nivel actualizado correctamente'
         };
       } else {
-        console.error('❌ LevelController.updateLevel() - Error del servicio:', result.message);
         return {
           success: false,
           data: null,
@@ -232,7 +217,6 @@ class LevelController {
         };
       }
     } catch (error) {
-      console.error('💥 LevelController.updateLevel() - Error inesperado:', error);
       return {
         success: false,
         data: null,
@@ -248,7 +232,6 @@ class LevelController {
    */
   async deleteLevel(levelId) {
     try {
-      console.log('📚 LevelController.deleteLevel() - Eliminando nivel:', levelId);
       
       if (!levelId) {
         return {
@@ -261,14 +244,12 @@ class LevelController {
       const result = await this.levelService.deleteLevel(levelId);
       
       if (result.success) {
-        console.log('✅ LevelController.deleteLevel() - Nivel eliminado exitosamente');
         return {
           success: true,
           data: null,
           message: 'Nivel eliminado correctamente'
         };
       } else {
-        console.error('❌ LevelController.deleteLevel() - Error del servicio:', result.message);
         return {
           success: false,
           data: null,
@@ -276,7 +257,6 @@ class LevelController {
         };
       }
     } catch (error) {
-      console.error('💥 LevelController.deleteLevel() - Error inesperado:', error);
       return {
         success: false,
         data: null,
@@ -292,7 +272,6 @@ class LevelController {
    */
   async reorderLevels(levelOrders) {
     try {
-      console.log('📚 LevelController.reorderLevels() - Reordenando niveles:', levelOrders);
       
       if (!Array.isArray(levelOrders) || levelOrders.length === 0) {
         return {
@@ -305,14 +284,12 @@ class LevelController {
       const result = await this.levelService.reorderLevels(levelOrders);
       
       if (result.success) {
-        console.log('✅ LevelController.reorderLevels() - Niveles reordenados exitosamente');
         return {
           success: true,
           data: result.data,
           message: 'Niveles reordenados correctamente'
         };
       } else {
-        console.error('❌ LevelController.reorderLevels() - Error del servicio:', result.message);
         return {
           success: false,
           data: null,
@@ -320,7 +297,6 @@ class LevelController {
         };
       }
     } catch (error) {
-      console.error('💥 LevelController.reorderLevels() - Error inesperado:', error);
       return {
         success: false,
         data: null,
@@ -336,7 +312,6 @@ class LevelController {
    */
   async getLevelStats(levelId) {
     try {
-      console.log('📚 LevelController.getLevelStats() - Obteniendo estadísticas:', levelId);
       
       if (!levelId) {
         return {
@@ -349,14 +324,12 @@ class LevelController {
       const result = await this.levelService.getLevelStats(levelId);
       
       if (result.success) {
-        console.log('✅ LevelController.getLevelStats() - Estadísticas obtenidas');
         return {
           success: true,
           data: result.data,
           message: 'Estadísticas del nivel obtenidas correctamente'
         };
       } else {
-        console.error('❌ LevelController.getLevelStats() - Error del servicio:', result.message);
         return {
           success: false,
           data: null,
@@ -364,7 +337,6 @@ class LevelController {
         };
       }
     } catch (error) {
-      console.error('💥 LevelController.getLevelStats() - Error inesperado:', error);
       return {
         success: false,
         data: null,
@@ -379,19 +351,16 @@ class LevelController {
    */
   async getAllPlanets() {
     try {
-      console.log('📚 LevelController.getAllPlanets() - Obteniendo planetas...');
       
       const result = await this.planetService.getAllPlanets();
       
       if (result.success) {
-        console.log('✅ LevelController.getAllPlanets() - Planetas obtenidos:', result.data?.length || 0);
         return {
           success: true,
           data: result.data,
           message: 'Planetas obtenidos correctamente'
         };
       } else {
-        console.error('❌ LevelController.getAllPlanets() - Error del servicio:', result.message);
         return {
           success: false,
           data: null,
@@ -399,7 +368,6 @@ class LevelController {
         };
       }
     } catch (error) {
-      console.error('💥 LevelController.getAllPlanets() - Error inesperado:', error);
       return {
         success: false,
         data: null,
@@ -425,21 +393,21 @@ class LevelController {
 
     // Para creación, validar campos requeridos
     if (!isUpdate) {
-      if (!levelData.planetId) {
+      if (!levelData.planetId && !levelData.idPlaneta) {
         return {
           isValid: false,
           message: 'Planeta es requerido'
         };
       }
 
-      if (!levelData.orderIndex) {
+      if (!levelData.orderIndex && !levelData.orden) {
         return {
           isValid: false,
           message: 'Orden del nivel es requerido'
         };
       }
 
-      if (!levelData.title || levelData.title.trim() === '') {
+      if ((!levelData.title || levelData.title.trim() === '') && (!levelData.titulo || levelData.titulo.trim() === '')) {
         return {
           isValid: false,
           message: 'Título del nivel es requerido'
@@ -490,6 +458,23 @@ class LevelController {
       isValid: true,
       message: 'Datos válidos'
     };
+  }
+
+  /**
+   * Prepara los datos del nivel para enviar al backend
+   * @param {Object} levelData - Datos originales del frontend
+   * @returns {Object} Datos preparados para el backend
+   */
+  prepareLevelData(levelData) {
+    
+    const preparedData = {
+      idPlaneta: levelData.planetId || levelData.idPlaneta, // Enviar como 'idPlaneta' al backend
+      titulo: levelData.title || levelData.titulo, // Enviar como 'titulo' al backend
+      orden: levelData.orderIndex || levelData.orden || 1, // Enviar como 'orden' al backend
+      activo: levelData.isActive !== undefined ? levelData.isActive : true // Enviar como 'activo' al backend
+    };
+    
+    return preparedData;
   }
 }
 

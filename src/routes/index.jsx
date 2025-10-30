@@ -25,6 +25,7 @@ import AdminGame from '../views/admin/AdminGame.jsx';
 import AdminPlanets from '../views/admin/AdminPlanets.jsx';
 import AdminLevels from '../views/admin/AdminLevels.jsx';
 import AdminExercises from '../views/admin/AdminExercises.jsx';
+import AdminReports from '../views/admin/AdminReports.jsx';
 
 // Importar componentes del estudiante
 import StudentLayout from '../views/StudentLayout.jsx';
@@ -34,6 +35,9 @@ import StudentProfile from '../views/student/StudentProfile.jsx';
 import StudentGame from '../views/student/StudentGame.jsx';
 import PlanetLevelsView from '../views/student/PlanetLevelsView.jsx';
 import QuizView from '../views/student/QuizView.jsx';
+import StudentProgress from '../views/student/StudentProgress.jsx';
+import StudentAchievements from '../views/student/StudentAchievements.jsx';
+import LevelExercisesRedirect from '../views/student/LevelExercisesRedirect.jsx';
 
 /**
  * Configuración de rutas de la aplicación
@@ -58,6 +62,7 @@ export const AppRoutes = () => {
         <Route path="game/planets" element={<AdminPlanets />} />
         <Route path="game/levels" element={<AdminLevels />} />
         <Route path="game/exercises" element={<AdminExercises />} />
+        <Route path="reports" element={<AdminReports />} />
       </Route>
       
       {/* Rutas del estudiante con layout anidado */}
@@ -66,7 +71,11 @@ export const AppRoutes = () => {
         <Route path="contents" element={<StudentContents />} />
         <Route path="profile" element={<StudentProfile />} />
         <Route path="game" element={<StudentGame />} />
+        <Route path="progress" element={<StudentProgress />} />
+        <Route path="achievements" element={<StudentAchievements />} />
         <Route path="planets/:planetId/levels" element={<PlanetLevelsView />} />
+        {/* Compatibilidad: redirigir /student/levels/:levelId/exercises */}
+        <Route path="levels/:levelId/exercises" element={<LevelExercisesRedirect />} />
       </Route>
       
       {/* Rutas de ejercicios */}

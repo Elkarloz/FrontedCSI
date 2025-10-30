@@ -31,40 +31,29 @@ const AuthPage = () => {
     try {
       if (isLogin) {
         // Login
-        console.log('🔐 Iniciando proceso de login...');
         const result = await userController.login({
           email: formData.email,
           password: formData.password
         });
         
-        console.log('🔐 Resultado del login:', result);
-        
         if (result.success) {
-          console.log('✅ Login exitoso, verificando rol del usuario...');
-          console.log('👤 Usuario logueado:', result.data?.user);
-          console.log('🔍 Rol del usuario:', result.data?.user?.role);
-          console.log('🔍 Tipo de rol:', typeof result.data?.user?.role);
+          const userRole = result.data?.user?.rol || result.data?.user?.role;
           
           // Verificar si es admin y redirigir apropiadamente
-          if (result.data?.user?.role === 'admin') {
-            console.log('👑 Usuario admin detectado, redirigiendo a /admin');
+          if (userRole === 'admin') {
             setTimeout(() => {
               navigate('/admin');
             }, 100);
-          } else if (result.data?.user?.role === 'estudiante') {
-            console.log('👤 Usuario estudiante detectado, redirigiendo a /student');
+          } else if (userRole === 'estudiante') {
             setTimeout(() => {
               navigate('/student');
             }, 100);
           } else {
-            console.log('👤 Usuario normal, redirigiendo a /space-map');
-            console.log('⚠️ Rol no reconocido:', result.data?.user?.role);
             setTimeout(() => {
               navigate('/space-map');
             }, 100);
           }
         } else {
-          console.log('❌ Error en login:', result.message);
           setError(result.message);
         }
       } else {
@@ -90,7 +79,6 @@ const AuthPage = () => {
         }
       }
     } catch (error) {
-      console.error('💥 Error inesperado en login:', error);
       setError('Error inesperado. Intenta de nuevo.');
     } finally {
       setIsLoading(false);

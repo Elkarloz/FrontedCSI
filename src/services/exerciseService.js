@@ -111,10 +111,13 @@ class ExerciseService {
    * @param {*} answer - Respuesta del usuario
    * @returns {Promise<Object>} Respuesta de la API
    */
-  async submitAnswer(exerciseId, answer) {
+  async submitAnswer(exerciseId, answer, { timeTaken = 0, hintsUsed = 0, userId } = {}) {
     try {
-      const response = await this.apiClient.post(`${this.baseUrl}/${exerciseId}/answer`, {
-        answer: answer
+      const response = await this.apiClient.post(`${this.baseUrl}/${exerciseId}/submit`, {
+        userAnswer: answer,
+        timeTaken,
+        hintsUsed,
+        ...(userId ? { userId } : {})
       });
       return {
         success: true,
@@ -289,7 +292,6 @@ class ExerciseService {
    * @returns {Object} Respuesta de error
    */
   handleError(error, defaultMessage) {
-    console.error('ExerciseService Error:', error);
     
     let message = defaultMessage;
     let statusCode = 500;

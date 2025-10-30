@@ -34,10 +34,17 @@ export const checkAuthStatus = () => {
       };
     }
 
+    // Normalizar usuario para exponer tanto 'rol' (ES) como 'role' (EN)
+    const normalizedUser = {
+      ...payload,
+      role: payload.role || payload.rol || null,
+      rol: payload.rol || payload.role || null
+    };
+
     return {
       isAuthenticated: true,
       token,
-      user: payload,
+      user: normalizedUser,
       error: null
     };
   } catch (error) {
@@ -82,7 +89,7 @@ export const getAuthToken = () => {
  */
 export const isAdmin = () => {
   const authStatus = checkAuthStatus();
-  return authStatus.isAuthenticated && authStatus.user?.role === 'admin';
+  return authStatus.isAuthenticated && (authStatus.user?.role === 'admin' || authStatus.user?.rol === 'admin');
 };
 
 /**
@@ -107,15 +114,22 @@ export const handleAuthRedirect = (currentPath) => {
     return;
   }
   
-  // Si está autenticado y está en auth, redirigir al mapa
+  // Si está autenticado y está en auth, redirigir según rol
   if (authStatus.isAuthenticated && currentPath === '/auth') {
-    window.location.href = '/space-map';
+    const userRole = authStatus.user?.rol || authStatus.user?.role;
+    if (userRole === 'admin') {
+      window.location.href = '/admin';
+    } else if (userRole === 'estudiante') {
+      window.location.href = '/student';
+    } else {
+      window.location.href = '/space-map';
+    }
     return;
   }
   
   // Si está en admin pero no es admin, redirigir al mapa
   if (currentPath === '/admin' && !isAdmin()) {
-    window.location.href = '/space-map';
+    window.location.href = '/student';
     return;
   }
 };

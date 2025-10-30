@@ -305,13 +305,41 @@ class LevelService {
   }
 
   /**
+   * Obtiene niveles con información de desbloqueo para el usuario actual
+   * @param {Object} filters - Filtros opcionales (planetId)
+   * @returns {Promise<Object>} Respuesta de la API con niveles y estado de desbloqueo
+   */
+  async getLevelsWithUnlockStatus(filters = {}) {
+    try {
+      let url = `${this.baseUrl}/with-unlock-status`;
+      const params = new URLSearchParams();
+      
+      if (filters.planetId) {
+        params.append('planetId', filters.planetId);
+      }
+      
+      if (params.toString()) {
+        url += `?${params.toString()}`;
+      }
+      
+      const response = await this.apiClient.get(url);
+      return {
+        success: true,
+        data: response.data.data, // El backend devuelve {success, data, message}, necesitamos response.data.data
+        message: 'Niveles con estado de desbloqueo obtenidos correctamente'
+      };
+    } catch (error) {
+      return this.handleError(error, 'Error al obtener niveles con estado de desbloqueo');
+    }
+  }
+
+  /**
    * Maneja errores de la API
    * @param {Error} error - Error capturado
    * @param {string} defaultMessage - Mensaje por defecto
    * @returns {Object} Respuesta de error
    */
   handleError(error, defaultMessage) {
-    console.error('LevelService Error:', error);
     
     let message = defaultMessage;
     let statusCode = 500;

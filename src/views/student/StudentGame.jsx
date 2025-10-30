@@ -3,13 +3,14 @@
  * Permite a los estudiantes navegar por planetas con animaciones
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import GameSpaceMap from '../../components/GameSpaceMap';
 import PlanetNavigation from '../../components/PlanetNavigation';
 import { planetService } from '../../services/planetService';
 import { levelService } from '../../services/levelService';
 import { useToast } from '../../components/Toast';
+import bgmSrc from '../../utils/1.mp3';
 
 const StudentGame = () => {
   const navigate = useNavigate();
@@ -20,19 +21,62 @@ const StudentGame = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const { showError, showSuccess } = useToast();
+  const audioRef = useRef(null);
+  const startedRef = useRef(false);
 
   useEffect(() => {
     loadGameData();
   }, []);
 
-  // Debug: Monitorear cambios en selectedPlanet
+  // Música de fondo desde la vista de juego (planetas)
   useEffect(() => {
-    console.log('🔄 selectedPlanet cambió:', selectedPlanet);
+    if (!audioRef.current) {
+      audioRef.current = new Audio(bgmSrc);
+      audioRef.current.loop = true;
+      audioRef.current.volume = 0.25;
+    }
+
+    const tryStart = async () => {
+      if (startedRef.current) return;
+      try {
+        await audioRef.current.play();
+        startedRef.current = true;
+      } catch (e) {}
+    };
+
+    tryStart();
+
+    const onFirstInteract = () => {
+      if (!startedRef.current && audioRef.current) {
+        audioRef.current.play().catch(() => {});
+        startedRef.current = true;
+      }
+      window.removeEventListener('click', onFirstInteract);
+      window.removeEventListener('keydown', onFirstInteract);
+      window.removeEventListener('touchstart', onFirstInteract);
+    };
+    window.addEventListener('click', onFirstInteract);
+    window.addEventListener('keydown', onFirstInteract);
+    window.addEventListener('touchstart', onFirstInteract, { passive: true });
+
+    return () => {
+      window.removeEventListener('click', onFirstInteract);
+      window.removeEventListener('keydown', onFirstInteract);
+      window.removeEventListener('touchstart', onFirstInteract);
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
+      startedRef.current = false;
+    };
+  }, []);
+
+  // Monitorear cambios en selectedPlanet (sin logs de depuración)
+  useEffect(() => {
   }, [selectedPlanet]);
 
   const loadGameData = async () => {
     try {
-      console.log('🚀 Cargando datos del juego...');
       setIsLoading(true);
       setError(null);
 
@@ -44,7 +88,6 @@ const StudentGame = () => {
 
       if (planetsResult.success) {
         setPlanets(planetsResult.data || []);
-        console.log('✅ Planetas cargados:', planetsResult.data?.length || 0);
         
         // Establecer el primer planeta como actual si hay planetas
         if (planetsResult.data?.length > 0) {
@@ -57,13 +100,10 @@ const StudentGame = () => {
 
       if (levelsResult.success) {
         setLevels(levelsResult.data || []);
-        console.log('✅ Niveles cargados:', levelsResult.data?.length || 0);
       } else {
-        console.warn('⚠️ No se pudieron cargar los niveles:', levelsResult.message);
       }
 
     } catch (error) {
-      console.error('💥 Error cargando datos del juego:', error);
       setError('Error al cargar datos del juego');
       showError('Error al cargar datos del juego', 'Error de conexión');
     } finally {
@@ -72,14 +112,10 @@ const StudentGame = () => {
   };
 
   const handlePlanetSelect = (planet) => {
-    console.log('🪐 Planeta seleccionado:', planet);
-    console.log('🪐 Estableciendo selectedPlanet:', planet);
     setSelectedPlanet(planet);
-    console.log('🪐 selectedPlanet actualizado');
   };
 
   const handlePlanetChange = (planetId) => {
-    console.log('🔄 Cambiando a planeta:', planetId);
     setCurrentPlanetId(planetId);
     
     // No establecer selectedPlanet aquí para evitar loop infinito
@@ -88,12 +124,10 @@ const StudentGame = () => {
 
   const handleEnterPlanet = () => {
     if (selectedPlanet) {
-      console.log('🚀 Entrando al planeta:', selectedPlanet);
       
       // Navegar a la vista de niveles del planeta
       navigate(`/student/planets/${selectedPlanet.id}/levels`);
     } else {
-      console.warn('⚠️ No hay planeta seleccionado');
       showError('Por favor selecciona un planeta primero', 'Planeta no seleccionado');
     }
   };

@@ -33,6 +33,14 @@ const AdminDashboard = () => {
       color: 'orange',
       icon: '🚀',
       path: '/admin/game'
+    },
+    { 
+      id: 'reports', 
+      label: 'Ver Reportes', 
+      description: 'Progreso general y por estudiante', 
+      color: 'cyan',
+      icon: '📊',
+      path: '/admin/reports'
     }
   ];
 
@@ -62,7 +70,12 @@ const AdminDashboard = () => {
               className="group bg-gradient-to-br from-gray-800/50 to-gray-900/50 hover:from-gray-700/50 hover:to-gray-800/50 rounded-xl p-8 border border-gray-600 hover:border-gray-500 transition-all duration-300 text-left transform hover:scale-105 hover:shadow-2xl"
             >
               <div className="text-center">
-                <div className={`w-20 h-20 bg-${category.color}-500/20 rounded-xl flex items-center justify-center mx-auto mb-4`}>
+                <div className={`w-20 h-20 rounded-xl flex items-center justify-center mx-auto mb-4 ${
+                  category.color === 'pink' ? 'bg-pink-500/20' :
+                  category.color === 'emerald' ? 'bg-emerald-500/20' :
+                  category.color === 'orange' ? 'bg-orange-500/20' :
+                  category.color === 'cyan' ? 'bg-cyan-500/20' : 'bg-gray-500/20'
+                }`}>
                   <span className="text-4xl">
                     {category.icon}
                   </span>

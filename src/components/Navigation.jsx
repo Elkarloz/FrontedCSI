@@ -26,7 +26,6 @@ const Navigation = () => {
         setUser(response.data);
       }
     } catch (error) {
-      console.error('Error al cargar usuario:', error);
     } finally {
       setIsLoading(false);
     }
@@ -38,7 +37,6 @@ const Navigation = () => {
       navigate('/');
       setIsMenuOpen(false);
     } catch (error) {
-      console.error('Error al cerrar sesión:', error);
     }
   };
 
@@ -105,6 +103,13 @@ const Navigation = () => {
                     label="Mapa Espacial"
                     icon="🌌"
                     isActive={isActiveRoute('/space-map')}
+                    onClick={() => setIsMenuOpen(false)}
+                  />
+                  <NavLink
+                    to="/student/progress"
+                    label="Progreso"
+                    icon="📈"
+                    isActive={isActiveRoute('/student/progress')}
                     onClick={() => setIsMenuOpen(false)}
                   />
                   <NavLink
@@ -201,6 +206,13 @@ const Navigation = () => {
                   isActive={isActiveRoute('/space-map')}
                   onClick={() => setIsMenuOpen(false)}
                 />
+                  <MobileNavLink
+                    to="/student/progress"
+                    label="Progreso"
+                    icon="📈"
+                    isActive={isActiveRoute('/student/progress')}
+                    onClick={() => setIsMenuOpen(false)}
+                  />
                 <MobileNavLink
                   to="/profile"
                   label="Perfil"

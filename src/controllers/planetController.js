@@ -38,12 +38,12 @@ class PlanetController {
       // Transformar datos para la vista
       const transformedPlanets = planetsData.map(planet => ({
         id: planet.id,
-        title: planet.title || planet.name, // Mantener el campo title para consistencia con el backend
-        name: planet.title || planet.name, // También mantener name para compatibilidad
+        title: planet.title || planet.name,
+        name: planet.title || planet.name,
         description: planet.description,
-        difficulty: 'medium', // Campo legacy, no se usa en el backend actual
-        orderIndex: planet.orderIndex || 0, // Incluir el campo de orden
-        isUnlocked: planet.isActive === 1,
+        difficulty: 'medium',
+        orderIndex: planet.order_index || planet.orderIndex || 0,
+        isUnlocked: planet.is_active === 1 || planet.is_active === true,
         totalLevels: planet.totalLevels || planet.levelsCount || 0,
         completedLevels: 0, // No hay información de progreso en el backend actual
         progress: 0, // No hay información de progreso en el backend actual
@@ -94,17 +94,17 @@ class PlanetController {
       // Transformar datos para la vista
       const transformedPlanet = {
         id: response.data.id,
-        name: response.data.name,
+        name: response.data.title || response.data.name,
         description: response.data.description,
         difficulty: response.data.difficulty || 'medium', // Campo legacy
-        isUnlocked: response.data.isUnlocked,
+        isUnlocked: response.data.is_active === 1 || response.data.is_active === true,
         levels: response.data.levels?.map(level => ({
           id: level.id,
-          name: level.name,
+          name: level.title || level.name,
           description: level.description,
-          order: level.order,
+          order: level.order_index || level.order,
           isCompleted: level.isCompleted,
-          isUnlocked: level.isUnlocked,
+          isUnlocked: level.is_active === 1 || level.is_active === true,
           exercises: level.exercises?.length || 0
         })) || [],
         color: this.getPlanetColor(response.data.difficulty || 'medium')
@@ -360,14 +360,12 @@ class PlanetController {
    * @returns {Object} Datos preparados
    */
   preparePlanetData(planetData) {
-    console.log('🪐 PlanetController.preparePlanetData() - Datos recibidos:', planetData);
     const preparedData = {
       title: planetData.name?.trim(),
       description: planetData.description?.trim(),
       orderIndex: planetData.orderIndex || 1,
       isActive: planetData.isUnlocked !== undefined ? planetData.isUnlocked : true
     };
-    console.log('🪐 PlanetController.preparePlanetData() - Datos preparados:', preparedData);
     return preparedData;
   }
 

@@ -4,8 +4,8 @@ import axios from 'axios';
 class ApiClient {
   constructor() {
     // Usar servidor local en desarrollo, producción en producción
-    const baseURL = 'https://apicsi.codevalcanos.com';  // Usar servidor de producción en producción
-    
+    //const baseURL = 'https://apicsi.codevalcanos.com';  // Usar servidor de producción en producción
+    const baseURL = 'http://localhost:5000'
     this.client = axios.create({
       baseURL: baseURL,
       timeout: 10000,
@@ -15,12 +15,7 @@ class ApiClient {
       withCredentials: true
     });
 
-    // Log de configuración
-    console.log('🔧 ApiClient configurado:', {
-      baseURL: baseURL,
-      environment: import.meta.env.MODE,
-      isDev: import.meta.env.DEV
-    });
+    // Configuración inicial
 
     this.setupInterceptors();
   }
@@ -38,20 +33,11 @@ class ApiClient {
           config.headers.Authorization = `Bearer ${token}`;
         }
 
-        // Log de peticiones en desarrollo
-        if (import.meta.env.DEV) {
-          console.log('API Request:', {
-            method: config.method?.toUpperCase(),
-            url: config.url,
-            data: config.data,
-            headers: config.headers
-          });
-        }
+        // Silenciar logs de peticiones
 
         return config;
       },
       (error) => {
-        console.error('Request Error:', error);
         return Promise.reject(error);
       }
     );
@@ -59,26 +45,11 @@ class ApiClient {
     // Interceptor de respuestas
     this.client.interceptors.response.use(
       (response) => {
-        // Log de respuestas en desarrollo
-        if (import.meta.env.DEV) {
-          console.log('API Response:', {
-            status: response.status,
-            url: response.config.url,
-            data: response.data
-          });
-        }
+        // Silenciar logs de respuestas
 
         return response;
       },
       (error) => {
-        // Log de errores
-        console.error('API Error:', {
-          status: error.response?.status,
-          url: error.config?.url,
-          message: error.message,
-          data: error.response?.data
-        });
-
         // Manejar errores de autenticación solo si no es una petición de login
         if (error.response?.status === 401 && !error.config?.url?.includes('/auth/login')) {
           this.handleUnauthorized();
@@ -123,14 +94,13 @@ class ApiClient {
    * Maneja errores de autenticación
    */
   handleUnauthorized() {
-    console.log('🔐 Token no válido, limpiando autenticación...');
+    
     this.removeAuthToken();
     
     // Solo redirigir si no estamos en la página de auth y no estamos en el proceso de login
     if (typeof window !== 'undefined' && 
         !window.location.pathname.includes('/auth') && 
         !window.location.pathname.includes('/login')) {
-      console.log('🔐 Redirigiendo a /auth');
       window.location.href = '/auth';
     }
   }

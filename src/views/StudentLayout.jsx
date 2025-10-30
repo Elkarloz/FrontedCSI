@@ -20,11 +20,10 @@ const StudentLayout = () => {
   useEffect(() => {
     // Cargar datos del estudiante al montar el componente
     loadStudentData();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadStudentData = async () => {
     try {
-      console.log('👤 Cargando datos del estudiante...');
       setIsLoading(true);
       setError(null);
 
@@ -32,17 +31,34 @@ const StudentLayout = () => {
       const authResult = await userController.getCurrentUser();
       
       if (!authResult.success) {
-        console.log('❌ Usuario no autenticado');
+        console.error('Error en autenticación:', authResult.message);
         navigate('/auth');
         return;
       }
 
-      const currentUser = authResult.data.data.user;
-      console.log('👤 Usuario actual:', currentUser);
+      // Manejar diferentes estructuras de respuesta
+      let currentUser = null;
+      if (authResult.data) {
+        // Intentar diferentes estructuras posibles
+        if (authResult.data.data?.user) {
+          currentUser = authResult.data.data.user;
+        } else if (authResult.data.user) {
+          currentUser = authResult.data.user;
+        } else if (authResult.data.data) {
+          currentUser = authResult.data.data;
+        } else if (authResult.data) {
+          currentUser = authResult.data;
+        }
+      }
+
+      if (!currentUser || !currentUser.id) {
+        console.error('No se pudo obtener información del usuario');
+        navigate('/auth');
+        return;
+      }
 
       // Verificar que sea estudiante
       if (currentUser.role !== 'estudiante') {
-        console.log('❌ Usuario no es estudiante, redirigiendo...');
         if (currentUser.role === 'admin') {
           navigate('/admin');
         } else {
@@ -52,7 +68,6 @@ const StudentLayout = () => {
       }
 
       setUser(currentUser);
-      console.log('✅ Datos del estudiante cargados correctamente');
 
       // Mostrar mensaje de bienvenida solo una vez por sesión
       const welcomeKey = `welcome_shown_${currentUser.id}`;
@@ -64,10 +79,19 @@ const StudentLayout = () => {
       }
 
     } catch (error) {
-      console.error('💥 Error cargando datos del estudiante:', error);
-      setError('Error al cargar datos del estudiante');
-      showError('Error al cargar datos del estudiante', 'Error de conexión');
-      navigate('/auth');
+      console.error('Error completo en loadStudentData:', error);
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+      
+      // Si ya tenemos usuario, no redirigir (podría ser un error temporal)
+      if (!user) {
+        setError('Error al cargar datos del estudiante');
+        showError('Error al cargar datos del estudiante', 'Error de conexión');
+        navigate('/auth');
+      } else {
+        // Si ya tenemos usuario, solo mostrar error pero no redirigir
+        console.warn('Error al recargar datos del estudiante, pero usuario ya existe:', user);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -75,7 +99,6 @@ const StudentLayout = () => {
 
   const handleLogout = async () => {
     try {
-      console.log('🚪 Cerrando sesión del estudiante...');
       
       // Limpiar el estado de bienvenida para la próxima sesión
       if (user?.id) {
@@ -87,7 +110,6 @@ const StudentLayout = () => {
       showSuccess('Sesión cerrada correctamente', 'Logout exitoso');
       navigate('/auth');
     } catch (error) {
-      console.error('💥 Error al cerrar sesión:', error);
       showError('Error al cerrar sesión', 'Error');
     }
   };

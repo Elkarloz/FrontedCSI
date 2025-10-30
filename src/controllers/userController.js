@@ -23,21 +23,16 @@ class UserController {
    */
   async getAllUsers() {
     try {
-      console.log('🔄 UserController.getAllUsers() - Iniciando...');
       this.setLoading(true);
       this.clearError();
       
-      console.log('🔄 UserController.getAllUsers() - Llamando a userService.getAllUsers()');
       const response = await this.userService.getAllUsers();
-      console.log('🔄 UserController.getAllUsers() - Respuesta del servicio:', response);
       
       // Validar respuesta del servicio
       if (!response.success) {
-        console.error('❌ UserController.getAllUsers() - Error del servicio:', response.message);
         throw new Error(response.message || 'Error al obtener usuarios');
       }
       
-      console.log('🔄 UserController.getAllUsers() - Transformando datos...');
       // Transformar datos para la vista
       const transformedUsers = response.data.map(user => ({
         id: user.id,
@@ -45,10 +40,9 @@ class UserController {
         email: user.email,
         role: user.role,
         isActive: user.isActive,
-        createdAt: new Date(user.createdAt).toLocaleDateString('es-ES')
+        createdAt: new Date(user.created_at || user.createdAt).toLocaleDateString('es-ES')
       }));
       
-      console.log('✅ UserController.getAllUsers() - Usuarios transformados:', transformedUsers);
       
       return {
         success: true,
@@ -56,7 +50,6 @@ class UserController {
         message: 'Usuarios obtenidos correctamente'
       };
     } catch (error) {
-      console.error('💥 UserController.getAllUsers() - Error:', error);
       this.setError(error.message);
       return {
         success: false,
@@ -75,7 +68,6 @@ class UserController {
    */
   async register(userData) {
     try {
-      console.log('🔄 UserController.register() - Iniciando registro público:', userData);
       this.setLoading(true);
       this.clearError();
       
@@ -88,9 +80,7 @@ class UserController {
       // Preparar datos para el servicio (sin role, se asigna automáticamente como 'estudiante')
       const preparedData = this.prepareUserData(userData, false);
       
-      console.log('🔄 UserController.register() - Llamando a userService.register()');
       const response = await this.userService.register(preparedData);
-      console.log('🔄 UserController.register() - Respuesta del servicio:', response);
       
       if (!response.success) {
         throw new Error(response.message || 'Error al registrar usuario');
@@ -102,7 +92,6 @@ class UserController {
         message: 'Usuario registrado correctamente'
       };
     } catch (error) {
-      console.error('💥 UserController.register() - Error:', error);
       this.setError(error.message);
       return {
         success: false,
@@ -407,12 +396,9 @@ class UserController {
       password: userData.password,
       isActive: userData.isActive !== undefined ? userData.isActive : true
     };
-    
-    // Solo incluir role si se especifica
     if (includeRole) {
       preparedData.role = userData.role || 'estudiante';
     }
-    
     return preparedData;
   }
 
