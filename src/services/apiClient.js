@@ -4,8 +4,8 @@ import axios from 'axios';
 class ApiClient {
   constructor() {
     // Usar servidor local en desarrollo, producción en producción
-    //const baseURL = 'https://apicsi.codevalcanos.com';  // Usar servidor de producción en producción
-    const baseURL = 'http://localhost:5000'
+    const baseURL = 'https://apicsi.codevalcanos.com';  // Usar servidor de producción en producción
+    //const baseURL = 'http://localhost:5000'
     this.client = axios.create({
       baseURL: baseURL,
       timeout: 10000,
